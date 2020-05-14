@@ -1,0 +1,6 @@
+Render Engine - partea ce se ocupa de randare, componenta ce ne va servi imaginile
+Game Loop - componenta ce se ocupa de rularea continua a tuturor evenimentelor din cadrul jocului, update-ul starilor si rerandare
+Resource Loader - componenta pe care o vom folosi pentru a incarca sprite-uri si texturi in cadrul game engine-ului, pentru a le aplica pe modelel noastre
+InputProcessorComponent - partea ce se va ocupa de 'ascultarea' tastelor si mouse-ului, si va procesa input-ul
+AbstractScene Component - se ocupa de incarcare si curatarea scenei, gestioneaza desenarile de elemente ce se fac
+PhyscisEngine - pentru coliziuni, posibil iluminare
