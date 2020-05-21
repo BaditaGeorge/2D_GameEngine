@@ -1,9 +1,14 @@
 import Component from '@glimmer/component';
 import { action } from '@ember/object';
 import { tracked } from '@glimmer/tracking';
+import { substring } from 'game-engine/helpers/substring';
+
 // import '@ember/render-modifiers';
 
 export default class RenderShapeComponent extends Component {
+
+    @tracked path;
+
     constructor() {
         super(...arguments);
         if (this.args.model !== undefined) {
@@ -11,23 +16,34 @@ export default class RenderShapeComponent extends Component {
             this.usedProps = [];
             this.createPath(this.model.type, this.model);
             this.createStyle(this.model);
+            // this.dispatchInterval();
         }
+    }
+
+    dispatchInterval() {
+        let step = () => {
+            let arr = this.path.split(' ');
+            for (let i = 1; i < arr.length; i += 3) {
+                arr[i] = (parseInt(arr[i]) + 5).toString();
+            }
+            this.path = arr.join(' ');
+            requestAnimationFrame(step);
+        }
+        step();
     }
 
     createStyle(config) {
         let keys = Object.keys(config);
-        for (let i = 0; i < this.usedProps.length; i++) {
-            config[this.usedProps[i]] = undefined;
-        }
         this.style = '';
         for (let i = 0; i < keys.length; i++) {
-            if (config[keys[i]] !== undefined) {
+            if (!this.usedProps.includes(keys[i])) {
                 this.style += (keys[i] + ':' + config[keys[i]] + ';');
             }
         }
     }
 
     createPath(type, config) {
+        //creez un factory
         if (type === 'circle') {
             this.usedProps = ['r', 'cx', 'cy'];
             let r = parseInt(config['r']);
