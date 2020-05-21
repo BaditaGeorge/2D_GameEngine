@@ -20,6 +20,11 @@ export default class RenderShapeComponent extends Component {
         }
     }
 
+    @action
+    showSomething() {
+        console.log('here');
+    }
+
     dispatchInterval() {
         let step = () => {
             let arr = this.path.split(' ');

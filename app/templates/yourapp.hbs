@@ -1,7 +1,15 @@
 <div style="width:100%;height:100%;">
-    {{#each this.elementsToRender as |element|}}
-        {{#let (component element) as |Element|}}
-            <Element @object_set={{this.config_arr}} />
-        {{/let}}
-    {{/each}}
+    <svg width='1500' height='720'>
+        {{#each this.elementsToRender as |element|}}
+            {{#let (component element) as |Element|}}
+                <Element @object_set={{this.groupModel.config_array}} />
+            {{/let}}
+        {{/each}}
+        {{#each this.simpleEl.config_obj as |model|}}
+            <Render::Shape @model={{model}} />
+        {{/each}}
+        {{#each this.bullet.config_obj as |bModel|}}
+            <Render::Shape @model={{bModel}} />
+        {{/each}}
+    </svg>
 </div>
