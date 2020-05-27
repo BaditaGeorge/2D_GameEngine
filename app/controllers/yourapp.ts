@@ -1,8 +1,9 @@
 import Controller from '@ember/controller';
 // import { tracked } from '@glimmer/tracking';
-import GroupService from 'game-engine/services/group-service';
-import InputKeyProcessor from 'game-engine/services/input-key-processor';
-import ShapeService from 'game-engine/services/shape-service';
+
+import ShapeModel from 'game-engine/models/shape-model';
+import GroupModel from 'game-engine/models/group-model';
+import InputKeyModel from 'game-engine/models/input-key-model';
 
 export default class Yourapp extends Controller.extend({
   // anything which *must* be merged to prototype here
@@ -13,9 +14,9 @@ export default class Yourapp extends Controller.extend({
   // {"type":"polygon","points":[150,0,75,200,225,200],"fill":"blue"}]);
   // @tracked config_arr:Array<any> = [{type:'rect',w:50,x:10,h:50,y:10,fill:'blue'}];
   elementsToRender: Array<string> = ['render/group'];
-  groupModel = GroupService.create();
-  keyProcessor = InputKeyProcessor.create();
-  bullet = ShapeService.create();
+  groupModel = new GroupModel();
+  keyProcessor = new InputKeyModel();
+  bullet = new ShapeModel();
 
   constructor() {
     super(...arguments);
@@ -30,38 +31,44 @@ export default class Yourapp extends Controller.extend({
       basicObj['x'] = 10;
       basicObj['y'] += 55;
     }
-    this.simpleEl = ShapeService.create();
+    this.simpleEl = new ShapeModel();
     this.simpleEl.setConfig({ type: 'rect', w: 50, x: 10, h: 50, y: 500, fill: 'blue' });
     console.log(this.simpleEl.config_obj);
     this.doSomething();
   }
 
-  moveGrid(){
-    this.groupModel.setAttribute('x',undefined,5);
+  moveGrid(x:any,y:any) {
+    this.groupModel.setPosition(x,y);
   }
 
   doSomething(): void {
-    let contor = 0;
-    // window.setInterval(()=>{
-    //   this.moveGrid();
-    // },500);
-    window.setInterval(()=>{
+    let gX = 10;
+    let gY = 10;
+    window.setInterval(() => {
+      gX += 5;
+      this.moveGrid(gX,gY);
+    }, 200);
+    let x = 10;
+    let y = 500;
+    window.setInterval(() => {
       if (this.keyProcessor.isKeyDown('ArrowRight')) {
-        if(this.simpleEl.getAttribute('x') < 1200){
-          this.simpleEl.setAttribute('x', undefined, 5);
+        if (this.simpleEl.getPosition('x') < 1200) {
+          x += 5;
+          this.simpleEl.setPosition(x,y)
         }
       }
       if (this.keyProcessor.isKeyDown('ArrowLeft')) {
-        if(this.simpleEl.getAttribute('x') > 0){
-          this.simpleEl.setAttribute('x', undefined, -5);
+        if (this.simpleEl.getPosition('x') > 0) {
+          x -= 5;
+          this.simpleEl.setPosition(x,y);
         }
       }
-      if(this.keyProcessor.isKeyDown('Space')){
+      if (this.keyProcessor.isKeyDown('Space')) {
         console.log('a');
         this.bullet.setConfig({ type: 'rect', w: 50, x: 200, h: 50, y: 500, fill: 'blue' });
       }
       // this.groupModel.setAttribute('x',undefined,5);
-    },16);
+    }, 16);
   }
   // normal class body definition here
 }

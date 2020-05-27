@@ -38,22 +38,23 @@ export default class RenderShapeComponent extends Component {
     }
 
     createStyle(config) {
-        let keys = Object.keys(config);
+        let tempConfig = Object.assign({}, config);
+        let keys = Object.keys(tempConfig);
         this.style = '';
         for (let i = 0; i < keys.length; i++) {
             if (!this.usedProps.includes(keys[i])) {
-                this.style += (keys[i] + ':' + config[keys[i]] + ';');
+                this.style += (keys[i] + ':' + tempConfig[keys[i]] + ';');
             }
         }
     }
 
     createPath(type, config) {
         //creez un factory
+        this.usedProps = ['type', 'data'];
         if (type === 'circle') {
-            this.usedProps = ['r', 'cx', 'cy'];
-            let r = parseInt(config['r']);
-            let cx = parseInt(config['cx']);
-            let cy = parseInt(config['cy']);
+            let r = parseInt(config.data[2]);
+            let cx = parseInt(config.data[0]);
+            let cy = parseInt(config.data[1]);
             this.path = [
                 'M', cx, cy,
                 'm', -1 * r, 0,
@@ -63,10 +64,10 @@ export default class RenderShapeComponent extends Component {
             console.log(this.path);
         } else if (type === 'rect') {
             this.usedProps = ['w', 'h', 'x', 'y'];
-            let w = parseInt(config['w']);
-            let h = parseInt(config['h']);
-            let x = parseInt(config['x']);
-            let y = parseInt(config['y']);
+            let w = parseInt(config.data[2]);
+            let h = parseInt(config.data[3]);
+            let x = parseInt(config.data[0]);
+            let y = parseInt(config.data[1]);
             this.path = [
                 'M', x, y,
                 'L', x + w, y,
@@ -77,12 +78,12 @@ export default class RenderShapeComponent extends Component {
             this.usedProps = ['points'];
             this.path = [];
             this.path.push('M');
-            this.path.push(config.points[0]);
-            this.path.push(config.points[1]);
-            for (let i = 2; i < config.points.length; i += 2) {
+            this.path.push(config.data[0]);
+            this.path.push(config.data[1]);
+            for (let i = 2; i < config.data.length; i += 2) {
                 this.path.push('L');
-                this.path.push(config.points[i]);
-                this.path.push(config.points[i + 1]);
+                this.path.push(config.data[i]);
+                this.path.push(config.data[i + 1]);
             }
             this.path = this.path.join(' ');
         }
