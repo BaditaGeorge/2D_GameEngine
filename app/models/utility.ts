@@ -2,7 +2,7 @@ import { ShapeInterface } from 'game-engine/models/shape-interface';
 
 export default class Utilitars {
     processConfig(config: any) {
-        let configData: ShapeInterface = {};
+        let configData: ShapeInterface = {type:'',data:[],fill:''};
         configData.fill = config['fill'];
         configData.type = config['type'];
         if (config['type'] === 'rect') {
@@ -12,7 +12,6 @@ export default class Utilitars {
         } else {
             configData.data = config['points'];
         }
-        console.log(configData);
         return configData;
     }
 

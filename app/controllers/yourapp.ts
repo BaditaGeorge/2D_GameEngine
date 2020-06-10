@@ -4,6 +4,8 @@ import Controller from '@ember/controller';
 import ShapeModel from 'game-engine/models/shape-model';
 import GroupModel from 'game-engine/models/group-model';
 import InputKeyModel from 'game-engine/models/input-key-model';
+import GameLoop from 'game-engine/models/game-loop';
+import PhysicEngineInterface from 'game-engine/models/physicEngine';
 
 export default class Yourapp extends Controller.extend({
   // anything which *must* be merged to prototype here
@@ -17,58 +19,118 @@ export default class Yourapp extends Controller.extend({
   groupModel = new GroupModel();
   keyProcessor = new InputKeyModel();
   bullet = new ShapeModel();
+  gameLoop = new GameLoop();
+  shields: Array<GroupModel> = [];
+  engine:any = undefined;
 
   constructor() {
     super(...arguments);
+    this.engine = PhysicEngineInterface.getInstance();
     // this.groupModel.addElement({type:'rect',w:50,x:10,h:50,y:10,fill:'blue'});
     // this.groupModel.addElement({type:'rect',w:50,x:65,h:50,y:10,fill:'blue'});
     let basicObj = { type: 'rect', w: 50, x: 10, h: 50, y: 10 };
+    this.groupModel.setCollisionClass('invaders');
     for (let i = 0; i < 5; i++) {
       for (let j = 0; j < 5; j++) {
         this.groupModel.addElement(Object.assign({}, basicObj));
-        basicObj['x'] += 55;
+        basicObj['x'] += 65;
       }
       basicObj['x'] = 10;
       basicObj['y'] += 55;
     }
+    let basicShield = { type: 'rect', w: 50, x: 55, h: 50, y: 290 };
+    let x = 0;
+    for (let i = 0; i < 3; i++) {
+      let shieldObj = Object.assign({}, basicShield);
+      this.shields.push(new GroupModel());
+      for (let j = 0; j < 3; j++) {
+        for (let t = 0; t < 3; t++) {
+          if (j == 2) {
+            if (t != 1) {
+              this.shields[i].addElement(shieldObj);
+            }
+          } else {
+            this.shields[i].addElement(shieldObj);
+          }
+          shieldObj['x'] += 55;
+        }
+        x = shieldObj['x'] + 95;
+        shieldObj['x'] = basicShield['x'];
+        shieldObj['y'] += 55;
+      }
+      basicShield['x'] = x;
+    }
+
     this.simpleEl = new ShapeModel();
     this.simpleEl.setConfig({ type: 'rect', w: 50, x: 10, h: 50, y: 500, fill: 'blue' });
-    console.log(this.simpleEl.config_obj);
     this.doSomething();
   }
 
-  moveGrid(x:any,y:any) {
-    this.groupModel.setPosition(x,y);
+  moveGrid(x: any, y: any) {
+    this.groupModel.setPosition(x, y);
   }
 
   doSomething(): void {
     let gX = 10;
     let gY = 10;
-    window.setInterval(() => {
+    let evGrid = () => {
       gX += 5;
-      this.moveGrid(gX,gY);
-    }, 200);
+      this.moveGrid(gX, gY);
+    }
+    this.gameLoop.addLoop('moveGrid', evGrid, 200);
     let x = 10;
     let y = 500;
-    window.setInterval(() => {
+    let keyEvents = () => {
+      if (this.bullet.isSet() === true) {
+        let targetIndex:number = this.engine.isCollision(this.bullet.getConfig(),'invaders');
+        if (targetIndex === -1 && this.bullet.getPosition('y') >= 0) {
+          let tempY = this.bullet.getPosition('y');
+          let tempX = this.bullet.getPosition('x');
+          tempY -= 5;
+          this.bullet.setPosition(tempX, tempY);
+        }else{
+          if(targetIndex !== -1){
+            console.log('hit');
+            this.groupModel.setFill('yellow',targetIndex);
+          }
+          this.bullet.destroyObject();
+        }
+      }
+
+      // if(this.keyProcessor.isKeyDown('ArrowUp')){
+      //   y -= 10;
+      //   this.simpleEl.setPosition(x,y);
+      // }
+      // if(this.keyProcessor.isKeyDown('ArrowDown')){
+      //   y += 10;
+      //   this.simpleEl.setPosition(x,y);
+      // }
       if (this.keyProcessor.isKeyDown('ArrowRight')) {
         if (this.simpleEl.getPosition('x') < 1200) {
-          x += 5;
-          this.simpleEl.setPosition(x,y)
+          x += 10;
+          this.simpleEl.setPosition(x, y)
         }
       }
       if (this.keyProcessor.isKeyDown('ArrowLeft')) {
         if (this.simpleEl.getPosition('x') > 0) {
-          x -= 5;
-          this.simpleEl.setPosition(x,y);
+          x -= 10;
+          this.simpleEl.setPosition(x, y);
         }
       }
       if (this.keyProcessor.isKeyDown('Space')) {
-        console.log('a');
-        this.bullet.setConfig({ type: 'rect', w: 50, x: 200, h: 50, y: 500, fill: 'blue' });
+        // console.log('a');
+        if (this.bullet.isSet() === false) {
+          this.bullet.setConfig({ type: 'rect', w: 50, x: this.simpleEl.getPosition('x'), h: 50, y: this.simpleEl.getPosition('y'), fill: 'blue' });
+        }
+        // this.groupModel.setFill('red',3);
+      }
+      if (this.keyProcessor.isKeyDown('A')) {
+        this.gameLoop.changeLoopFrequency('moveGrid', 200);
+        // this.groupModel.setFill('yellow',3);
       }
       // this.groupModel.setAttribute('x',undefined,5);
-    }, 16);
+    }
+    this.gameLoop.addLoop('keyEvents', keyEvents, 16);
   }
   // normal class body definition here
 }

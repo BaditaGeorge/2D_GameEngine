@@ -61,7 +61,6 @@ export default class RenderShapeComponent extends Component {
                 'a', r, r, 0, 1, 0, (r * 2), 0,
                 'a', r, r, 0, 1, 0, -1 * (r * 2), 0,
             ].join(' ');
-            console.log(this.path);
         } else if (type === 'rect') {
             this.usedProps = ['w', 'h', 'x', 'y'];
             let w = parseInt(config.data[2]);

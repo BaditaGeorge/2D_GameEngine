@@ -11,5 +11,8 @@
         {{#each this.bullet.config_obj as |bModel|}}
             <Render::Shape @model={{bModel}} />
         {{/each}}
+        {{#each this.shields as |shield|}}
+            <Render::Group @object_set={{shield.config_array}} />
+        {{/each}}
     </svg>
 </div>
