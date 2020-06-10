@@ -9,6 +9,8 @@ export default class GroupModel {
   engine: any = PhysicEngineInterface.getInstance();
   isTouchable: boolean = false;
   collisionClass: string = '';
+  additionalData: any = {};
+  additionalDataArray:Array<any> = [];
 
   constructor() {
 
@@ -16,10 +18,58 @@ export default class GroupModel {
 
   addElement(render_Obj: any) {
     this.config_array.pushObject(this.utils.processConfig(render_Obj));
+    this.additionalDataArray.push({});
     if (this.isTouchable === true) {
       let len = this.config_array.length;
       this.engine.setPosition(this.config_array[len - 1].data, this.config_array[len - 1].type, this.collisionClass);
     }
+  }
+
+  setAdditionalData(key:string,dataField:any){
+    this.additionalData[key] = dataField;
+  }
+
+  getAdditionalData(key:string){
+    return this.additionalData[key];
+  }
+
+  setAdditionalDataAt(index:number,key:string,dataField:any){
+    this.additionalDataArray[index][key] = dataField;
+  }
+
+  getAdditionalDataAt(index:number,key:string){
+    return this.additionalDataArray[index][key];
+  }
+  
+  setPositionAt(index:number,positionX:number,positionY:number){
+    let tempObject:ShapeInterface = Object.assign({},this.config_array[index]);
+    let tempConfig:ShapeInterface = {fill:'',data:[],type:''};
+    tempConfig.fill = tempObject.fill.slice();
+    tempConfig.data = tempObject.data.slice();
+    tempConfig.type = tempObject.type.slice();
+    this.config_array.splice(index,1);
+    this.config_array.splice(index,0,this.utils.changeCoordinates(Object.assign({},tempObject), positionX,positionY));
+    if (this.isTouchable === true) {
+      this.engine.resetPosition(this.config_array[index].data, tempConfig.data, this.config_array[index].type);
+    }
+    // let temporal_Arr: Array<any> = [];
+    // this.copyArray(temporal_Arr, undefined);
+
+    // this.clear();
+    // let diffX = positionX - temporal_Arr[0].data[0];
+    // let diffY = positionY - temporal_Arr[0].data[1];
+    // for (let i = 0; i < temporal_Arr.length; i++) {
+    //   let temporalConfig: ShapeInterface = { type: '', data: [], fill: '' };
+    //   temporalConfig.type = temporal_Arr[i].type.slice();
+    //   if (temporal_Arr[i].fill !== undefined) {
+    //     temporalConfig.fill = temporal_Arr[i].fill.slice();
+    //   }
+    //   temporalConfig.data = temporal_Arr[i].data.slice();
+    //   this.config_array.pushObject(this.utils.changeCoordinates(temporal_Arr[i], temporal_Arr[i].data[0] + diffX, temporal_Arr[i].data[1] + diffY));
+    //   if (this.isTouchable === true) {
+    //     this.engine.resetPosition(this.config_array[i].data, temporalConfig.data, this.config_array[i].type);
+    //   }
+    // }
   }
 
   private copyArray(temporal_Arr: Array<ShapeInterface>, index: number | null | undefined) {
@@ -69,6 +119,7 @@ export default class GroupModel {
       index = 0;
     }
     this.config_array.splice(index, 1);
+    this.additionalDataArray.splice(index,1);
     // let temporal_Arr:Array<any> = [];
     // if(index === undefined || index === null){
     //   index = 0;
@@ -89,7 +140,6 @@ export default class GroupModel {
     //   }
     // }
     if (index !== undefined && index < this.config_array.length) {
-      console.log('hit2');
       let temporal_Arr: Array<any> = [];
       this.copyArray(temporal_Arr, undefined);
 

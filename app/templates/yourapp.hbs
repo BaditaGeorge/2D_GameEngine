@@ -14,5 +14,6 @@
         {{#each this.shields as |shield|}}
             <Render::Group @object_set={{shield.config_array}} />
         {{/each}}
+        <Render::Group @object_set={{this.alienBullets.config_array}} />
     </svg>
 </div>

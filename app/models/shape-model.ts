@@ -57,6 +57,17 @@ export default class ShapeModel {
     this.config_obj.pushObject(this.utils.changeCoordinates(tempObj,positionX,positionY));
   }
 
+  getField(key:string): number {
+    if(this.config_obj[0].data !== undefined){
+      if(key === 'w'){
+        return this.config_obj[0].data[2];
+      }else if(key === 'h'){
+        return this.config_obj[0].data[3];
+      }
+    }
+    return -1;
+  }
+
   destroyObject() {
     this.config_obj.clear();
   }
