@@ -10,7 +10,7 @@ export default class ShapeModel {
   }
 
   setConfig(config: any) {
-    let configData: ShapeInterface = {type:'',data:[],fill:''};
+    let configData: ShapeInterface = { type: '', data: [], fill: '' };
     if (this.config_obj.length < 1) {
       configData = this.utils.processConfig(config);
     }
@@ -18,7 +18,7 @@ export default class ShapeModel {
     // console.log(Object.assign({}, configData));
   }
 
-  getConfig(){
+  getConfig() {
     return this.config_obj[0];
   }
 
@@ -54,14 +54,14 @@ export default class ShapeModel {
     //     this.config_obj[0].data = tmpDt.slice();
     //   }
     // }
-    this.config_obj.pushObject(this.utils.changeCoordinates(tempObj,positionX,positionY));
+    this.config_obj.pushObject(this.utils.changeCoordinates(tempObj, positionX, positionY));
   }
 
-  getField(key:string): number {
-    if(this.config_obj[0].data !== undefined){
-      if(key === 'w'){
+  getField(key: string): number {
+    if (this.config_obj[0].data !== undefined) {
+      if (key === 'w') {
         return this.config_obj[0].data[2];
-      }else if(key === 'h'){
+      } else if (key === 'h') {
         return this.config_obj[0].data[3];
       }
     }

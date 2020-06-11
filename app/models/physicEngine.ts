@@ -92,19 +92,11 @@ class PhysicEngine {
         let data = shape.data.slice();
         let type = shape.type.slice();
         let condition = (bInMove: BoundingBox, bObstacle: BoundingBox) => {
-            if ((bObstacle.cornerX[0] < bInMove.cornerX[0] && bObstacle.cornerY[0] < bInMove.cornerY[0] && bObstacle.cornerX[1] > bInMove.cornerX[0] && bObstacle.cornerY[1] > bInMove.cornerY[0]) ||
-                (bObstacle.cornerX[0] < bInMove.cornerX[1] && bObstacle.cornerY[0] < bInMove.cornerY[0] && bObstacle.cornerX[1] > bInMove.cornerX[1] && bObstacle.cornerY[1] > bInMove.cornerY[0]) ||
-                (bObstacle.cornerX[0] < bInMove.cornerX[1] && bObstacle.cornerY[0] < bInMove.cornerY[1] && bObstacle.cornerX[1] > bInMove.cornerX[1] && bObstacle.cornerY[1] > bInMove.cornerY[1]) ||
-                (bObstacle.cornerX[0] < bInMove.cornerX[0] && bObstacle.cornerY[0] < bInMove.cornerY[1] && bObstacle.cornerX[1] > bInMove.cornerX[0] && bObstacle.cornerY[1] > bInMove.cornerY[1]) ||
-                (bObstacle.cornerX[0] < bInMove.cornerX[0] && bObstacle.cornerX[1] > bInMove.cornerX[1] && (bObstacle.cornerY[0] === bInMove.cornerY[1] || bObstacle.cornerY[1] === bInMove.cornerY[0])) ||
-                (bObstacle.cornerY[0] < bInMove.cornerY[0] && bObstacle.cornerY[1] > bInMove.cornerY[1] && (bObstacle.cornerX[0] === bInMove.cornerX[1] || bObstacle.cornerX[1] === bInMove.cornerX[0])) ||
-                (bObstacle.cornerX[0] === bInMove.cornerX[0] && bObstacle.cornerX[1] === bInMove.cornerX[1] && bObstacle.cornerY[0] < bInMove.cornerY[0] && bObstacle.cornerY[1] > bInMove.cornerY[0]) ||
-                (bObstacle.cornerX[0] === bInMove.cornerX[0] && bObstacle.cornerX[1] === bInMove.cornerX[1] && bObstacle.cornerY[0] < bInMove.cornerY[1] && bObstacle.cornerY[1] > bInMove.cornerY[1]) ||
-                (bObstacle.cornerY[0] === bInMove.cornerY[0] && bObstacle.cornerY[1] === bInMove.cornerY[1] && bObstacle.cornerX[0] < bInMove.cornerX[0] && bObstacle.cornerX[1] > bInMove.cornerX[0]) ||
-                (bObstacle.cornerY[0] === bInMove.cornerY[0] && bObstacle.cornerY[1] === bInMove.cornerY[1] && bObstacle.cornerX[0] < bInMove.cornerX[1] && bObstacle.cornerX[1] > bInMove.cornerX[1])) {
-                return true;
+            if((bObstacle.cornerX[1] < bInMove.cornerX[0] || bObstacle.cornerX[0] > bInMove.cornerX[1]) || 
+            (bObstacle.cornerY[1] < bInMove.cornerY[0] || bObstacle.cornerY[0] > bInMove.cornerY[1])){
+                return false;
             }
-            return false;
+            return true;
         }
         let movingBB: BoundingBox | undefined = this.createBoundingBox(data, type);
         if (movingBB !== undefined && this.boundingBoxesMap[collisionClass] !== undefined) {

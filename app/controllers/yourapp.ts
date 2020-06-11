@@ -83,20 +83,66 @@ export default class Yourapp extends Controller.extend({
     this.gameLoop.addLoop('moveGrid', evGrid, 200);
     let x = 10;
     let y = 600;
-    let ok = 0;
-    let poss:Array<number> = [];
-    let ev = () => {
-      if(ok === 0){
-        this.alienBullets.addElement({ type: 'rect', w: 15, x: 40, h: 50, y: 100, fill: 'red' });
-        poss.push(40);
-        poss.push(100);
-        ok = 1;
-      }else{
-        poss[1] += 8;
-        this.alienBullets.setPositionAt(0,poss[0],poss[1]);
+    let poss: Array<number> = [];
+    let matrixOfInvs: any = [];
+    for (let i = 0; i < 5; i++) {
+      matrixOfInvs.push([]);
+      for (let j = 0; j < 5; j++) {
+        matrixOfInvs[i].push(true);
       }
     }
-    this.gameLoop.addLoop('fall',ev,200);
+    let atTick: number = 0;
+    let ev = () => {
+      let spawningPosition: number = Math.floor(Math.random() * 5);
+      let lowerBounder: number = 4;
+      if (this.alienBullets.getSize() < 3) {
+        if (matrixOfInvs[lowerBounder][spawningPosition] === true) {
+          let positionalObj: any = this.groupModel.getPositionAt(lowerBounder * 5 + spawningPosition);
+          this.alienBullets.addElement({ type: 'rect', w: 15, h: 50, x: positionalObj['x'], y: positionalObj['y'], fill: 'red' });
+          poss.push(positionalObj['x']);
+          poss.push(positionalObj['y']);
+        } else {
+          while (lowerBounder >= 0 && matrixOfInvs[lowerBounder][spawningPosition] === false) {
+            lowerBounder--;
+          }
+          let positionalObj: any = this.groupModel.getPositionAt(lowerBounder * 4 + spawningPosition);
+          this.alienBullets.addElement({ type: 'rect', w: 15, h: 50, x: positionalObj['x'], y: positionalObj['y'], fill: 'red' });
+          poss.push(positionalObj['x']);
+          poss.push(positionalObj['y']);
+        }
+      }
+    }
+    let infall = () => {
+      atTick++;
+      if (atTick === 30) {
+        atTick = 0;
+        ev();
+      }
+      let tIndex: number = -1;
+      let toPop: Array<number> = [];
+      for (let i = 0; i < this.alienBullets.getSize(); i++) {
+        poss[i * 2 + 1] += 10;
+        if (poss[i * 2 + 1] < 720) {
+          this.alienBullets.setPositionAt(i, poss[i * 2], poss[i * 2 + 1]);
+          for (let j = 0; j < 3; j++) {
+            tIndex = this.engine.isCollision(this.alienBullets.getConfigAt(i), ('shields' + j));
+            if (tIndex !== -1) {
+              this.shields[j].setFill('yellow', tIndex);
+              toPop.push(i);
+              break;
+            }
+          }
+        }else{
+          toPop.push(i);
+        }
+      }
+      for (let i = 0; i < toPop.length; i++) {
+        this.alienBullets.popElement(toPop[i]);
+        poss.splice(toPop[i] * 2, 2);
+      }
+    }
+    // this.gameLoop.addLoop('fall', ev, 200);
+    this.gameLoop.addLoop('infall', infall, 30);
     let keyEvents = () => {
       if (this.bullet.isSet() === true) {
         let targetIndex: number = this.engine.isCollision(this.bullet.getConfig(), 'invaders');
@@ -119,37 +165,30 @@ export default class Yourapp extends Controller.extend({
           if (targetIndex !== -1) {
             if (colliSion === 'invaders') {
               this.groupModel.setFill('yellow', targetIndex);
-            }else if(colliSion === 'shields0'){
-              this.shields[0].setFill('yellow',targetIndex);
-              if(this.shields[0].getAdditionalDataAt(targetIndex,'damaged') === undefined){
-                this.shields[0].setAdditionalDataAt(targetIndex,'damaged',1);
-              }else{
-                let damageInd:number = this.shields[0].getAdditionalDataAt(targetIndex,'damaged');
-                if(damageInd < 3){
-                  this.shields[0].setAdditionalDataAt(targetIndex,'damaged',damageInd+1);
-                }else{
+              matrixOfInvs[Math.floor(targetIndex / 5)][targetIndex % 5] = false;
+            } else if (colliSion === 'shields0') {
+              this.shields[0].setFill('yellow', targetIndex);
+              if (this.shields[0].getAdditionalDataAt(targetIndex, 'damaged') === undefined) {
+                this.shields[0].setAdditionalDataAt(targetIndex, 'damaged', 1);
+              } else {
+                let damageInd: number = this.shields[0].getAdditionalDataAt(targetIndex, 'damaged');
+                if (damageInd < 3) {
+                  this.shields[0].setAdditionalDataAt(targetIndex, 'damaged', damageInd + 1);
+                } else {
                   this.shields[0].popElement(targetIndex);
-                  this.engine.unset(colliSion,targetIndex);
+                  this.engine.unset(colliSion, targetIndex);
                 }
               }
-            }else if(colliSion === 'shields1'){
-              this.shields[1].setFill('yellow',targetIndex);
-            }else if(colliSion === 'shields2'){
-              this.shields[2].setFill('yellow',targetIndex);
+            } else if (colliSion === 'shields1') {
+              this.shields[1].setFill('yellow', targetIndex);
+            } else if (colliSion === 'shields2') {
+              this.shields[2].setFill('yellow', targetIndex);
             }
           }
           this.bullet.destroyObject();
         }
       }
 
-      // if(this.keyProcessor.isKeyDown('ArrowUp')){
-      //   y -= 10;
-      //   this.simpleEl.setPosition(x,y);
-      // }
-      // if(this.keyProcessor.isKeyDown('ArrowDown')){
-      //   y += 10;
-      //   this.simpleEl.setPosition(x,y);
-      // }
       if (this.keyProcessor.isKeyDown('ArrowRight')) {
         if (this.simpleEl.getPosition('x') < 1200) {
           x += 10;
@@ -165,15 +204,13 @@ export default class Yourapp extends Controller.extend({
       if (this.keyProcessor.isKeyDown('Space')) {
         // console.log('a');
         if (this.bullet.isSet() === false) {
-          this.bullet.setConfig({ type: 'rect', w: 15, x: (this.simpleEl.getPosition('x') + this.simpleEl.getField('w')/2), h: 50, y: this.simpleEl.getPosition('y'), fill: 'blue' });
+          this.bullet.setConfig({ type: 'rect', w: 15, x: (this.simpleEl.getPosition('x') + this.simpleEl.getField('w') / 2), h: 50, y: this.simpleEl.getPosition('y'), fill: 'blue' });
         }
         // this.groupModel.setFill('red',3);
       }
       if (this.keyProcessor.isKeyDown('A')) {
         this.gameLoop.changeLoopFrequency('moveGrid', 200);
-        // this.groupModel.setFill('yellow',3);
       }
-      // this.groupModel.setAttribute('x',undefined,5);
     }
     this.gameLoop.addLoop('keyEvents', keyEvents, 16);
   }

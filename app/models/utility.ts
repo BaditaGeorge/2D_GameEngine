@@ -22,6 +22,7 @@ export default class Utilitars {
                 tempObj.data[1] = positionY;
             }
         } else {
+            //de schimbat data la refactor cu un object
             if (tempObj.data !== undefined) {
                 let posDiffs: Array<number> = [];
                 for (let i = 0; i < tempObj.data.length - 2; i += 2) {
