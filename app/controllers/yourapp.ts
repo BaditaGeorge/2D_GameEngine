@@ -65,6 +65,7 @@ export default class Yourapp extends Controller.extend({
     }
 
     this.simpleEl = new ShapeModel();
+    this.simpleEl.setCollisionClass('ship');
     this.simpleEl.setConfig({ type: 'rect', w: 50, x: 10, h: 50, y: 600, fill: 'blue' });
     this.doSomething();
   }
@@ -105,7 +106,7 @@ export default class Yourapp extends Controller.extend({
           while (lowerBounder >= 0 && matrixOfInvs[lowerBounder][spawningPosition] === false) {
             lowerBounder--;
           }
-          let positionalObj: any = this.groupModel.getPositionAt(lowerBounder * 4 + spawningPosition);
+          let positionalObj: any = this.groupModel.getPositionAt(lowerBounder * 5 + spawningPosition);
           this.alienBullets.addElement({ type: 'rect', w: 15, h: 50, x: positionalObj['x'], y: positionalObj['y'], fill: 'red' });
           poss.push(positionalObj['x']);
           poss.push(positionalObj['y']);
@@ -127,9 +128,27 @@ export default class Yourapp extends Controller.extend({
           for (let j = 0; j < 3; j++) {
             tIndex = this.engine.isCollision(this.alienBullets.getConfigAt(i), ('shields' + j));
             if (tIndex !== -1) {
-              this.shields[j].setFill('yellow', tIndex);
+              if(this.shields[j].getAdditionalDataAt(tIndex,'damaged') === undefined){
+                this.shields[j].setAdditionalDataAt(tIndex,'damaged',1);
+                this.shields[j].setFill('yellow',tIndex);
+              }else{
+                let damage:number = this.shields[j].getAdditionalDataAt(tIndex,'damaged');
+                if(damage < 3){
+                  this.shields[j].setAdditionalDataAt(tIndex,'damaged',damage+1);
+                }else{
+                  this.shields[j].popElement(tIndex);
+                  this.engine.unset('shields'+j,tIndex);
+                }
+              }
               toPop.push(i);
               break;
+            }
+          }
+          if(tIndex === -1){
+            tIndex = this.engine.isCollision(this.alienBullets.getConfigAt(i),'ship');
+            if(tIndex !== -1){
+              toPop.push(i);
+              this.simpleEl.setFill('yellow');
             }
           }
         }else{

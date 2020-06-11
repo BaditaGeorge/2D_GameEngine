@@ -1,10 +1,14 @@
 import { ShapeInterface } from 'game-engine/models/shape-interface';
 import Utilitars from 'game-engine/models/utility';
+import PhysicEngineInterface from 'game-engine/models/physicEngine';
 
 export default class ShapeModel {
   // normal class body definition here
   config_obj: Array<ShapeInterface> = [];
   utils = new Utilitars();
+  collisionClass:string = '';
+  isTouchable:boolean = false;
+  engine = PhysicEngineInterface.getInstance();
 
   constructor() {
   }
@@ -15,6 +19,9 @@ export default class ShapeModel {
       configData = this.utils.processConfig(config);
     }
     this.config_obj.pushObject(configData);
+    if(this.isTouchable === true){
+      this.engine.setPosition(configData.data, configData.type, this.collisionClass);
+    }
     // console.log(Object.assign({}, configData));
   }
 
@@ -30,31 +37,23 @@ export default class ShapeModel {
     }
   }
 
+  setCollisionClass(collisionClass:string){
+    this.collisionClass = collisionClass;
+    this.isTouchable = true;
+  }
+
   setPosition(positionX: number, positionY: number) {
     let tempObj: ShapeInterface = Object.assign({}, this.config_obj[0]);
-    // console.log(this.config_obj[0]);
+    let copyObject: ShapeInterface = {fill:'',type:'',data:[]};
+    copyObject.fill = tempObj.fill.slice();
+    copyObject.type = tempObj.type.slice();
+    copyObject.data = tempObj.data.slice();
     this.config_obj.popObject();
-    // if (this.config_obj[0].data !== undefined) {
-    //   console.log(this.config_obj[0]);
-    //   let tmp: ShapeInterface = {};
-    //   tmp.data = this.config_obj[0].data.slice();
-    //   tmp.type = this.config_obj[0].type;
-    //   // while(this.config_obj[0].data.length > 0){
-    //   //   this.config_obj[0].data.popObject();
-    //   // }
-    //   this.config_obj[0].data = [];
-    //   let tmpDt: Array<number> | undefined = this.utils.changeCoordinates(tmp, positionX, positionY).data;
-    //   // console.log(tmpDt);
-    //   // if(tmpDt !== undefined){
-    //   //   for(let i=0;i<tmpDt.length;i++){
-    //   //     this.config_obj[0].data.pushObject(tmpDt[i]);
-    //   //   }
-    //   // }
-    //   if (tmpDt !== undefined) {
-    //     this.config_obj[0].data = tmpDt.slice();
-    //   }
-    // }
     this.config_obj.pushObject(this.utils.changeCoordinates(tempObj, positionX, positionY));
+    console.log(this.config_obj[0].data,copyObject.data);
+    if(this.isTouchable === true){
+      this.engine.resetPosition(this.config_obj[0].data, copyObject.data, this.config_obj[0].type)
+    }
   }
 
   getField(key: string): number {
