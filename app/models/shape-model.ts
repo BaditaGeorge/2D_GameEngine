@@ -14,7 +14,7 @@ export default class ShapeModel {
   }
 
   setConfig(config: any) {
-    let configData: ShapeInterface = { type: '', data: [], fill: '' };
+    let configData: ShapeInterface = { type: '', data:[], fill: '' };
     if (this.config_obj.length < 1) {
       configData = this.utils.processConfig(config);
     }
