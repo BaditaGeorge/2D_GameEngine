@@ -5,7 +5,7 @@ import ShapeModel from 'game-engine/models/shape-model';
 import GroupModel from 'game-engine/models/group-model';
 import InputKeyModel from 'game-engine/models/input-key-model';
 import GameLoop from 'game-engine/models/game-loop';
-import PhysicEngineInterface from 'game-engine/models/physicEngine';
+import PhysicEngineInterface, { PhysicEngine } from 'game-engine/models/physicEngine';
 
 export default class Yourapp extends Controller.extend({
   // anything which *must* be merged to prototype here
@@ -21,8 +21,8 @@ export default class Yourapp extends Controller.extend({
   bullet = new ShapeModel();
   gameLoop = new GameLoop();
   shields: Array<GroupModel> = [];
-  engine: any = undefined;
-  alienBullets: any = new GroupModel();
+  engine: PhysicEngine|undefined = undefined;
+  alienBullets: GroupModel = new GroupModel();
 
   constructor() {
     super(...arguments);
@@ -70,7 +70,7 @@ export default class Yourapp extends Controller.extend({
     this.doSomething();
   }
 
-  moveGrid(x: any, y: any) {
+  moveGrid(x: number, y: number) {
     this.groupModel.setPosition(x, y);
   }
 
@@ -114,6 +114,9 @@ export default class Yourapp extends Controller.extend({
       }
     }
     let infall = () => {
+      if(this.engine === undefined){
+        return;
+      }
       atTick++;
       if (atTick === 30) {
         atTick = 0;
@@ -163,6 +166,9 @@ export default class Yourapp extends Controller.extend({
     // this.gameLoop.addLoop('fall', ev, 200);
     this.gameLoop.addLoop('infall', infall, 30);
     let keyEvents = () => {
+      if(this.engine === undefined){
+        return;
+      }
       if (this.bullet.isSet() === true) {
         let targetIndex: number = this.engine.isCollision(this.bullet.getConfig(), 'invaders');
         let colliSion: string = 'invaders';

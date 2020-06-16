@@ -64,12 +64,12 @@ export default class GroupModel {
 
     this.clear();
     for (let i = 0; i < temporal_Arr.length; i++) {
-      let temporalConfig: ShapeInterface = { type: '', data: [], fill: '' };
+      let temporalConfig: ShapeInterface = { type: '', data: {}, fill: '' };
       temporalConfig.type = temporal_Arr[i].type.slice();
       if (temporal_Arr[i].fill !== undefined) {
         temporalConfig.fill = temporal_Arr[i].fill.slice();
       }
-      temporalConfig.data = temporal_Arr[i].data.slice();
+      temporalConfig.data = Object.assign({},temporal_Arr[i].data);
       if (i === index) {
         this.config_array.pushObject(this.utils.changeCoordinates(temporal_Arr[i], positionX, positionY));
       } else {
@@ -82,7 +82,7 @@ export default class GroupModel {
   }
 
   getPositionAt(index: number) {
-    return { 'x': this.config_array[index].data[0], 'y': this.config_array[index].data[1] };
+    return { 'x': this.config_array[index].data['x'], 'y': this.config_array[index].data['y'] };
   }
 
   private copyArray(temporal_Arr: Array<ShapeInterface>, index: number | null | undefined) {
@@ -115,16 +115,16 @@ export default class GroupModel {
     this.copyArray(temporal_Arr, undefined);
 
     this.clear();
-    let diffX = positionX - temporal_Arr[0].data[0];
-    let diffY = positionY - temporal_Arr[0].data[1];
+    let diffX = positionX - temporal_Arr[0].data['x'];
+    let diffY = positionY - temporal_Arr[0].data['y'];
     for (let i = 0; i < temporal_Arr.length; i++) {
-      let temporalConfig: ShapeInterface = { type: '', data: [], fill: '' };
+      let temporalConfig: ShapeInterface = { type: '', data: {}, fill: '' };
       temporalConfig.type = temporal_Arr[i].type.slice();
       if (temporal_Arr[i].fill !== undefined) {
         temporalConfig.fill = temporal_Arr[i].fill.slice();
       }
-      temporalConfig.data = temporal_Arr[i].data.slice();
-      this.config_array.pushObject(this.utils.changeCoordinates(temporal_Arr[i], temporal_Arr[i].data[0] + diffX, temporal_Arr[i].data[1] + diffY));
+      temporalConfig.data = Object.assign({},temporal_Arr[i].data);
+      this.config_array.pushObject(this.utils.changeCoordinates(temporal_Arr[i], temporal_Arr[i].data['x'] + diffX, temporal_Arr[i].data['y'] + diffY));
       if (this.isTouchable === true) {
         this.engine.resetPosition(this.config_array[i].data, temporalConfig.data, this.config_array[i].type);
       }
@@ -162,7 +162,7 @@ export default class GroupModel {
 
       this.clear();
       for (let i = 0; i < temporal_Arr.length; i++) {
-        let temporalConfig: ShapeInterface = { type: '', data: [], fill: '' };
+        let temporalConfig: ShapeInterface = { type: '', data: {}, fill: '' };
         temporalConfig.type = temporal_Arr[i].type.slice();
         if (i !== index) {
           if (temporal_Arr[i].fill !== undefined) {
@@ -171,24 +171,10 @@ export default class GroupModel {
         } else {
           temporalConfig.fill = fillData.slice();
         }
-        temporalConfig.data = temporal_Arr[i].data.slice();
+        temporalConfig.data = Object.assign({},temporal_Arr[i].data);
         this.config_array.pushObject(temporalConfig);
       }
     }
-    // console.log(fillData,index);
-    // if (index !== undefined) {
-    //   let tempObject: ShapeInterface = Object.assign({}, this.config_array[index]);
-    //   tempObject.fill = fillData;
-    //   this.config_array.splice(index,1);
-    //   this.config_array.splice(index,0,tempObject);
-    // }
   }
-
-  // removeElementAt(index:number){
-  //   let temporal_Arr:Array<any> = [];
-  //   for(let i=0;i<this.config_array.length;i++){
-
-  //   }
-  // }
 
 }

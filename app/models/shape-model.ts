@@ -14,7 +14,7 @@ export default class ShapeModel {
   }
 
   setConfig(config: any) {
-    let configData: ShapeInterface = { type: '', data:[], fill: '' };
+    let configData: ShapeInterface = { type: '', data:{}, fill: '' };
     if (this.config_obj.length < 1) {
       configData = this.utils.processConfig(config);
     }
@@ -44,10 +44,10 @@ export default class ShapeModel {
 
   setPosition(positionX: number, positionY: number) {
     let tempObj: ShapeInterface = Object.assign({}, this.config_obj[0]);
-    let copyObject: ShapeInterface = {fill:'',type:'',data:[]};
+    let copyObject: ShapeInterface = {fill:'',type:'',data:{}};
     copyObject.fill = tempObj.fill.slice();
     copyObject.type = tempObj.type.slice();
-    copyObject.data = tempObj.data.slice();
+    copyObject.data = Object.assign({},tempObj.data);
     this.config_obj.popObject();
     this.config_obj.pushObject(this.utils.changeCoordinates(tempObj, positionX, positionY));
     console.log(this.config_obj[0].data,copyObject.data);
@@ -58,11 +58,12 @@ export default class ShapeModel {
 
   getField(key: string): number {
     if (this.config_obj[0].data !== undefined) {
-      if (key === 'w') {
-        return this.config_obj[0].data[2];
-      } else if (key === 'h') {
-        return this.config_obj[0].data[3];
-      }
+      // if (key === 'w') {
+      //   return this.config_obj[0].data[2];
+      // } else if (key === 'h') {
+      //   return this.config_obj[0].data[3];
+      // }
+      return this.config_obj[0].data[key];
     }
     return -1;
   }
@@ -80,13 +81,14 @@ export default class ShapeModel {
 
   getPosition(key: string): number {
     if (this.config_obj[0].data !== undefined) {
-      if (key === 'x') {
-        return this.config_obj[0].data[0];
-      } else if (key === 'y') {
-        return this.config_obj[0].data[1];
-      } else {
-        return -1;
-      }
+      // if (key === 'x') {
+      //   return this.config_obj[0].data[0];
+      // } else if (key === 'y') {
+      //   return this.config_obj[0].data[1];
+      // } else {
+      //   return -1;
+      // }
+      return this.config_obj[0].data[key];
     } else {
       return -1;
     }

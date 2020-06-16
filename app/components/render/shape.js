@@ -52,9 +52,9 @@ export default class RenderShapeComponent extends Component {
         //creez un factory
         this.usedProps = ['type', 'data'];
         if (type === 'circle') {
-            let r = parseInt(config.data[2]);
-            let cx = parseInt(config.data[0]);
-            let cy = parseInt(config.data[1]);
+            let r = parseInt(config.data['r']);
+            let cx = parseInt(config.data['x']);
+            let cy = parseInt(config.data['y']);
             this.path = [
                 'M', cx, cy,
                 'm', -1 * r, 0,
@@ -63,10 +63,10 @@ export default class RenderShapeComponent extends Component {
             ].join(' ');
         } else if (type === 'rect') {
             this.usedProps = ['w', 'h', 'x', 'y'];
-            let w = parseInt(config.data[2]);
-            let h = parseInt(config.data[3]);
-            let x = parseInt(config.data[0]);
-            let y = parseInt(config.data[1]);
+            let w = parseInt(config.data['w']);
+            let h = parseInt(config.data['h']);
+            let x = parseInt(config.data['x']);
+            let y = parseInt(config.data['y']);
             this.path = [
                 'M', x, y,
                 'L', x + w, y,

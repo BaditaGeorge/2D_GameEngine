@@ -2,7 +2,7 @@ import Utilitars from 'game-engine/models/utility';
 import { BoundingBox, ShapeInterface } from 'game-engine/models/shape-interface';
 
 
-class PhysicEngine {
+export class PhysicEngine {
     boundingBoxesMap: any = {};
     //adaugam si aici interfata, imd
     map: any = {};
@@ -14,28 +14,28 @@ class PhysicEngine {
         this.boundingBoxesMap = {};
     }
 
-    createBoundingBox(data: Array<number> | undefined, type: string | undefined) {
+    createBoundingBox(data: any | undefined, type: string | undefined) {
         let tempBoundBox: BoundingBox = { cornerX: [], cornerY: [] };
         if (data !== undefined && type !== undefined) {
             if (type === 'circle') {
-                let radius = data[2];
-                tempBoundBox.cornerX.push(data[0] - radius);
-                tempBoundBox.cornerY.push(data[1] - radius);
-                tempBoundBox.cornerX.push(data[0] + radius);
-                tempBoundBox.cornerX.push(data[1] + radius);
+                let radius = data['r'];
+                tempBoundBox.cornerX.push(data['x'] - radius);
+                tempBoundBox.cornerY.push(data['y'] - radius);
+                tempBoundBox.cornerX.push(data['x'] + radius);
+                tempBoundBox.cornerX.push(data['y'] + radius);
             } else if (type === 'rect') {
-                let w = data[2];
-                let h = data[3];
-                tempBoundBox.cornerX.push(data[0]);
-                tempBoundBox.cornerY.push(data[1]);
-                tempBoundBox.cornerX.push(data[0] + w);
-                tempBoundBox.cornerY.push(data[1] + h);
+                let w = data['w'];
+                let h = data['h'];
+                tempBoundBox.cornerX.push(data['x']);
+                tempBoundBox.cornerY.push(data['y']);
+                tempBoundBox.cornerX.push(data['x'] + w);
+                tempBoundBox.cornerY.push(data['y'] + h);
             }
         }
         return tempBoundBox;
     }
 
-    setPosition(data: Array<number> | undefined, type: string | undefined, collisionClass: string) {
+    setPosition(data: any | undefined, type: string | undefined, collisionClass: string) {
         let handler: BoundingBox | undefined = this.createBoundingBox(data, type);
         if (collisionClass !== undefined) {
             if(this.arrayIndexes[collisionClass] === undefined){
@@ -56,7 +56,7 @@ class PhysicEngine {
         }
     }
 
-    unsetPosition(data: Array<number> | undefined) {
+    unsetPosition(data: any | undefined) {
         let stringifiedData: string = JSON.stringify(data);
         let actualIndex: number = this.map[stringifiedData][0];
         let collisionClass: string = this.map[stringifiedData][1];
@@ -77,7 +77,7 @@ class PhysicEngine {
         }
     }
 
-    resetPosition(data: Array<number> | undefined, oldData: Array<number> | undefined, type: string | undefined) {
+    resetPosition(data: any | undefined, oldData: Array<number> | undefined, type: string | undefined) {
         let stringifiedData: string = JSON.stringify(data);
         let stringifiedOldData: string = JSON.stringify(oldData);
         let actualIndex: number = this.map[stringifiedOldData][0];
@@ -89,7 +89,7 @@ class PhysicEngine {
     }
 
     isCollision(shape: ShapeInterface, collisionClass: string) {
-        let data = shape.data.slice();
+        let data = Object.assign({},shape.data);
         let type = shape.type.slice();
         let condition = (bInMove: BoundingBox, bObstacle: BoundingBox) => {
             if((bObstacle.cornerX[1] < bInMove.cornerX[0] || bObstacle.cornerX[0] > bInMove.cornerX[1]) || 
