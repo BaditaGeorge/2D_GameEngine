@@ -13,7 +13,7 @@ export default class ShapeModel {
   constructor() {
   }
 
-  setConfig(config: any) {
+  setConfig(config: {[key:string]:number|string}) {
     let configData: ShapeInterface = { type: '', data:{}, fill: '' };
     if (this.config_obj.length < 1) {
       configData = this.utils.processConfig(config);
@@ -50,7 +50,6 @@ export default class ShapeModel {
     copyObject.data = Object.assign({},tempObj.data);
     this.config_obj.popObject();
     this.config_obj.pushObject(this.utils.changeCoordinates(tempObj, positionX, positionY));
-    console.log(this.config_obj[0].data,copyObject.data);
     if(this.isTouchable === true){
       this.engine.resetPosition(this.config_obj[0].data, copyObject.data, this.config_obj[0].type)
     }

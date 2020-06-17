@@ -1,24 +1,23 @@
 import { ShapeInterface } from 'game-engine/models/shape-interface';
 import Utilitars from 'game-engine/models/utility';
-import PhysicEngineInterface from 'game-engine/models/physicEngine';
+import PhysicEngineInterface, { PhysicEngine } from 'game-engine/models/physicEngine';
 
 export default class GroupModel {
   // normal class body definition here
-  config_array: Array<any> = [];
-  utils = new Utilitars();
-  engine: any = PhysicEngineInterface.getInstance();
+  config_array: Array<ShapeInterface> = [];
+  utils:Utilitars = new Utilitars();
+  engine: PhysicEngine = PhysicEngineInterface.getInstance();
   isTouchable: boolean = false;
   collisionClass: string = '';
-  additionalData: any = {};
-  additionalDataArray: Array<any> = [];
-  edges: any = {};
+  additionalData: {[key:string]:string|number|Array<number>|Array<string>} = {};
+  additionalDataArray: Array<{[key:string]:string|number|Array<number>|Array<string>}> = [];
   initialLength: number = 0;
 
   constructor() {
 
   }
 
-  addElement(render_Obj: any) {
+  addElement(render_Obj: {[key:string]:number|string}) {
     this.config_array.pushObject(this.utils.processConfig(render_Obj));
     this.additionalDataArray.push({});
     this.initialLength++;
@@ -28,7 +27,7 @@ export default class GroupModel {
     }
   }
 
-  setAdditionalData(key: string, dataField: any) {
+  setAdditionalData(key: string, dataField: string|number|Array<number>|Array<string>) {
     this.additionalData[key] = dataField;
   }
 
@@ -36,7 +35,7 @@ export default class GroupModel {
     return this.additionalData[key];
   }
 
-  setAdditionalDataAt(index: number, key: string, dataField: any) {
+  setAdditionalDataAt(index: number, key: string, dataField: string|number|Array<number>|Array<string>) {
     this.additionalDataArray[index][key] = dataField;
   }
 
@@ -49,17 +48,7 @@ export default class GroupModel {
   }
 
   setPositionAt(index: number, positionX: number, positionY: number) {
-    // let tempObject:ShapeInterface = Object.assign({},this.config_array[index]);
-    // let tempConfig:ShapeInterface = {fill:'',data:[],type:''};
-    // tempConfig.fill = tempObject.fill.slice();
-    // tempConfig.data = tempObject.data.slice();
-    // tempConfig.type = tempObject.type.slice();
-    // this.config_array.splice(index,1);
-    // this.config_array.splice(index,0,this.utils.changeCoordinates(Object.assign({},tempObject), positionX,positionY));
-    // if (this.isTouchable === true) {
-    //   this.engine.resetPosition(this.config_array[index].data, tempConfig.data, this.config_array[index].type);
-    // }
-    let temporal_Arr: Array<any> = [];
+    let temporal_Arr: Array<ShapeInterface> = new Array<ShapeInterface>();
     this.copyArray(temporal_Arr, undefined);
 
     this.clear();
@@ -111,7 +100,7 @@ export default class GroupModel {
   }
 
   setPosition(positionX: number, positionY: number) {
-    let temporal_Arr: Array<any> = [];
+    let temporal_Arr: Array<ShapeInterface> = [];
     this.copyArray(temporal_Arr, undefined);
 
     this.clear();
@@ -157,7 +146,7 @@ export default class GroupModel {
     //   }
     // }
     if (index !== undefined && index < this.config_array.length) {
-      let temporal_Arr: Array<any> = [];
+      let temporal_Arr: Array<ShapeInterface> = [];
       this.copyArray(temporal_Arr, undefined);
 
       this.clear();

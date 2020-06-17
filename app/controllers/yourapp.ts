@@ -21,7 +21,7 @@ export default class Yourapp extends Controller.extend({
   bullet = new ShapeModel();
   gameLoop = new GameLoop();
   shields: Array<GroupModel> = [];
-  engine: PhysicEngine|undefined = undefined;
+  engine: PhysicEngine | undefined = undefined;
   alienBullets: GroupModel = new GroupModel();
 
   constructor() {
@@ -85,7 +85,7 @@ export default class Yourapp extends Controller.extend({
     let x = 10;
     let y = 600;
     let poss: Array<number> = [];
-    let matrixOfInvs: any = [];
+    let matrixOfInvs: Array<Array<boolean>> = [];
     for (let i = 0; i < 5; i++) {
       matrixOfInvs.push([]);
       for (let j = 0; j < 5; j++) {
@@ -98,7 +98,7 @@ export default class Yourapp extends Controller.extend({
       let lowerBounder: number = 4;
       if (this.alienBullets.getSize() < 3) {
         if (matrixOfInvs[lowerBounder][spawningPosition] === true) {
-          let positionalObj: any = this.groupModel.getPositionAt(lowerBounder * 5 + spawningPosition);
+          let positionalObj: { [key: string]: number } = this.groupModel.getPositionAt(lowerBounder * 5 + spawningPosition);
           this.alienBullets.addElement({ type: 'rect', w: 15, h: 50, x: positionalObj['x'], y: positionalObj['y'], fill: 'red' });
           poss.push(positionalObj['x']);
           poss.push(positionalObj['y']);
@@ -106,7 +106,7 @@ export default class Yourapp extends Controller.extend({
           while (lowerBounder >= 0 && matrixOfInvs[lowerBounder][spawningPosition] === false) {
             lowerBounder--;
           }
-          let positionalObj: any = this.groupModel.getPositionAt(lowerBounder * 5 + spawningPosition);
+          let positionalObj: { [key: string]: number } = this.groupModel.getPositionAt(lowerBounder * 5 + spawningPosition);
           this.alienBullets.addElement({ type: 'rect', w: 15, h: 50, x: positionalObj['x'], y: positionalObj['y'], fill: 'red' });
           poss.push(positionalObj['x']);
           poss.push(positionalObj['y']);
@@ -114,7 +114,7 @@ export default class Yourapp extends Controller.extend({
       }
     }
     let infall = () => {
-      if(this.engine === undefined){
+      if (this.engine === undefined) {
         return;
       }
       atTick++;
@@ -131,30 +131,32 @@ export default class Yourapp extends Controller.extend({
           for (let j = 0; j < 3; j++) {
             tIndex = this.engine.isCollision(this.alienBullets.getConfigAt(i), ('shields' + j));
             if (tIndex !== -1) {
-              if(this.shields[j].getAdditionalDataAt(tIndex,'damaged') === undefined){
-                this.shields[j].setAdditionalDataAt(tIndex,'damaged',1);
-                this.shields[j].setFill('yellow',tIndex);
-              }else{
-                let damage:number = this.shields[j].getAdditionalDataAt(tIndex,'damaged');
-                if(damage < 3){
-                  this.shields[j].setAdditionalDataAt(tIndex,'damaged',damage+1);
-                }else{
-                  this.shields[j].popElement(tIndex);
-                  this.engine.unset('shields'+j,tIndex);
+              if (this.shields[j].getAdditionalDataAt(tIndex, 'damaged') === undefined) {
+                this.shields[j].setAdditionalDataAt(tIndex, 'damaged', 1);
+                this.shields[j].setFill('yellow', tIndex);
+              } else {
+                let damage: number | string | Array<string> | Array<number> = this.shields[j].getAdditionalDataAt(tIndex, 'damaged');
+                if (typeof damage === 'number') {
+                  if (damage < 3) {
+                    this.shields[j].setAdditionalDataAt(tIndex, 'damaged', damage + 1);
+                  } else {
+                    this.shields[j].popElement(tIndex);
+                    this.engine.unset('shields' + j, tIndex);
+                  }
                 }
               }
               toPop.push(i);
               break;
             }
           }
-          if(tIndex === -1){
-            tIndex = this.engine.isCollision(this.alienBullets.getConfigAt(i),'ship');
-            if(tIndex !== -1){
+          if (tIndex === -1) {
+            tIndex = this.engine.isCollision(this.alienBullets.getConfigAt(i), 'ship');
+            if (tIndex !== -1) {
               toPop.push(i);
               this.simpleEl.setFill('yellow');
             }
           }
-        }else{
+        } else {
           toPop.push(i);
         }
       }
@@ -166,7 +168,7 @@ export default class Yourapp extends Controller.extend({
     // this.gameLoop.addLoop('fall', ev, 200);
     this.gameLoop.addLoop('infall', infall, 30);
     let keyEvents = () => {
-      if(this.engine === undefined){
+      if (this.engine === undefined) {
         return;
       }
       if (this.bullet.isSet() === true) {
@@ -184,7 +186,7 @@ export default class Yourapp extends Controller.extend({
         if (targetIndex === -1 && this.bullet.getPosition('y') >= 0) {
           let tempY = this.bullet.getPosition('y');
           let tempX = this.bullet.getPosition('x');
-          tempY -= 5;
+          tempY -= 10;
           this.bullet.setPosition(tempX, tempY);
         } else {
           if (targetIndex !== -1) {
@@ -196,9 +198,11 @@ export default class Yourapp extends Controller.extend({
               if (this.shields[0].getAdditionalDataAt(targetIndex, 'damaged') === undefined) {
                 this.shields[0].setAdditionalDataAt(targetIndex, 'damaged', 1);
               } else {
-                let damageInd: number = this.shields[0].getAdditionalDataAt(targetIndex, 'damaged');
+                let damageInd: number | string | Array<number> | Array<string> = this.shields[0].getAdditionalDataAt(targetIndex, 'damaged');
                 if (damageInd < 3) {
-                  this.shields[0].setAdditionalDataAt(targetIndex, 'damaged', damageInd + 1);
+                  if (typeof damageInd === 'number') {
+                    this.shields[0].setAdditionalDataAt(targetIndex, 'damaged', damageInd + 1);
+                  }
                 } else {
                   this.shields[0].popElement(targetIndex);
                   this.engine.unset(colliSion, targetIndex);

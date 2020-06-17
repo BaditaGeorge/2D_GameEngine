@@ -1,7 +1,7 @@
 export default class InputKeyModel{
-  keysDown: any = {};
-  keysUp: any = {};
-  keyDictionary: any = {
+  keysDown: {[key:number]:boolean|undefined} = {};
+  keysUp: {[key:number]:boolean|undefined} = {};
+  keyDictionary: {[key:string]:number} = {
     "Space": 32,
     "ArrowLeft": 37,
     "ArrowUp": 38,
@@ -24,7 +24,7 @@ export default class InputKeyModel{
     });
   }
 
-  private checkIfKey(key: string | number, keyObject: any) {
+  private checkIfKey(key: string | number, keyObject: {[key:number]:boolean|undefined}) {
     if (typeof key === 'string') {
       if (this.keyDictionary[key] !== undefined) {
         if (keyObject[this.keyDictionary[key]] === true) {

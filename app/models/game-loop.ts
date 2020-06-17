@@ -1,8 +1,8 @@
 
 export default class GameLoop {
 
-    loops: { [key: string]: any } = {};
-    events: { [key: string]: any } = {};
+    loops: { [key: string]: number } = {};
+    events: { [key: string]: (...args: any[]) => void } = {};
 
     constructor() {
 

@@ -3,43 +3,52 @@ import { BoundingBox, ShapeInterface } from 'game-engine/models/shape-interface'
 
 
 export class PhysicEngine {
-    boundingBoxesMap: any = {};
+    boundingBoxesMap: { [key: string]: Array<BoundingBox> } = {};
     //adaugam si aici interfata, imd
-    map: any = {};
-    arrayIndexes: any = {};
-    utils = new Utilitars();
-    linkMap: any = {};
+    map: {[key:string]:[number,string]} = {};
+    arrayIndexes: {[key:string]:number} = {};
+    utils: Utilitars = new Utilitars();
+    linkMap: {[key:string]:Array<string>} = {};
 
     constructor() {
-        this.boundingBoxesMap = {};
+
     }
 
-    createBoundingBox(data: any | undefined, type: string | undefined) {
+    createBoundingBox(data: { [key: string]: number | string } | undefined, type: string | undefined) {
         let tempBoundBox: BoundingBox = { cornerX: [], cornerY: [] };
         if (data !== undefined && type !== undefined) {
-            if (type === 'circle') {
-                let radius = data['r'];
-                tempBoundBox.cornerX.push(data['x'] - radius);
-                tempBoundBox.cornerY.push(data['y'] - radius);
-                tempBoundBox.cornerX.push(data['x'] + radius);
-                tempBoundBox.cornerX.push(data['y'] + radius);
-            } else if (type === 'rect') {
-                let w = data['w'];
-                let h = data['h'];
-                tempBoundBox.cornerX.push(data['x']);
-                tempBoundBox.cornerY.push(data['y']);
-                tempBoundBox.cornerX.push(data['x'] + w);
-                tempBoundBox.cornerY.push(data['y'] + h);
+            if (typeof data['x'] === 'number' && typeof data['y'] === 'number') {
+                if (type === 'circle') {
+                    if (typeof data['r'] === 'number') {
+                        let radius = data['r'];
+                        tempBoundBox.cornerX.push(data['x'] - radius);
+                        tempBoundBox.cornerY.push(data['y'] - radius);
+                        tempBoundBox.cornerX.push(data['x'] + radius);
+                        tempBoundBox.cornerX.push(data['y'] + radius);
+                    }
+                } else if (type === 'rect') {
+                    if (typeof data['w'] === 'number' && typeof data['h'] === 'number') {
+                        let w = data['w'];
+                        let h = data['h'];
+                        tempBoundBox.cornerX.push(data['x']);
+                        tempBoundBox.cornerY.push(data['y']);
+                        tempBoundBox.cornerX.push(data['x'] + w);
+                        tempBoundBox.cornerY.push(data['y'] + h);
+                    }
+                }
             }
         }
         return tempBoundBox;
     }
 
-    setPosition(data: any | undefined, type: string | undefined, collisionClass: string) {
+    setPosition(data: { [key: string]: number | string } | undefined, type: string | undefined, collisionClass: string) {
         let handler: BoundingBox | undefined = this.createBoundingBox(data, type);
         if (collisionClass !== undefined) {
-            if(this.arrayIndexes[collisionClass] === undefined){
+            if (this.arrayIndexes[collisionClass] === undefined) {
                 this.arrayIndexes[collisionClass] = 0;
+            }
+            if (this.linkMap === undefined) {
+                this.linkMap = {};
             }
             if (this.boundingBoxesMap[collisionClass] === undefined) {
                 this.boundingBoxesMap[collisionClass] = new Array<BoundingBox>();
@@ -49,51 +58,59 @@ export class PhysicEngine {
                     this.linkMap[collisionClass] = new Array<string>();
                 }
                 this.boundingBoxesMap[collisionClass].push(handler);
+                //{[key:string]:Array<string>}
                 this.linkMap[collisionClass].push(JSON.stringify(data));
+                //{[key:string]:[number,string]}
                 this.map[JSON.stringify(data)] = [this.arrayIndexes[collisionClass], collisionClass];
                 this.arrayIndexes[collisionClass]++;
             }
         }
     }
 
-    unsetPosition(data: any | undefined) {
+    unsetPosition(data: { [key: string]: number | string } | undefined) {
         let stringifiedData: string = JSON.stringify(data);
         let actualIndex: number = this.map[stringifiedData][0];
         let collisionClass: string = this.map[stringifiedData][1];
         this.boundingBoxesMap[collisionClass][actualIndex].cornerX.clear();
         this.boundingBoxesMap[collisionClass][actualIndex].cornerY.clear();
-        this.map[stringifiedData] = undefined;
-        this.linkMap[collisionClass][actualIndex] = undefined;
+        this.map[stringifiedData].clear();
+        this.linkMap[collisionClass][actualIndex] = '';
     }
 
     unset(collisionClass: string, index: number) {
-        if (this.linkMap[collisionClass][index] !== undefined) {
-            this.boundingBoxesMap[collisionClass][index].cornerX.clear();
-            this.boundingBoxesMap[collisionClass][index].cornerY.clear();
-            this.map[this.linkMap[collisionClass][index]] = undefined;
-            this.linkMap[collisionClass][index] = undefined;
-            this.boundingBoxesMap[collisionClass].splice(index,1);
-            this.linkMap[collisionClass].splice(index,1);
+        if (this.linkMap[collisionClass] !== undefined) {
+            if (this.linkMap[collisionClass][index] !== undefined) {
+                this.boundingBoxesMap[collisionClass][index].cornerX.clear();
+                this.boundingBoxesMap[collisionClass][index].cornerY.clear();
+                this.map[this.linkMap[collisionClass][index]].clear();
+                this.linkMap[collisionClass][index] = '';
+                this.boundingBoxesMap[collisionClass].splice(index, 1);
+                this.linkMap[collisionClass].splice(index, 1);
+            }
         }
     }
 
-    resetPosition(data: any | undefined, oldData: Array<number> | undefined, type: string | undefined) {
+    resetPosition(data: { [key: string]: number | string } | undefined, oldData: { [key: string]: number | string } | undefined, type: string | undefined) {
         let stringifiedData: string = JSON.stringify(data);
         let stringifiedOldData: string = JSON.stringify(oldData);
         let actualIndex: number = this.map[stringifiedOldData][0];
         let collisionClass: string = this.map[stringifiedOldData][1];
-        this.map[stringifiedOldData] = undefined;
+        this.map[stringifiedOldData].clear();
         this.map[stringifiedData] = [actualIndex, collisionClass];
-        this.linkMap[collisionClass][actualIndex] = stringifiedData;
+        if (this.linkMap !== undefined) {
+            if (this.linkMap[collisionClass] !== undefined) {
+                this.linkMap[collisionClass][actualIndex] = stringifiedData;
+            }
+        }
         this.boundingBoxesMap[collisionClass][actualIndex] = this.createBoundingBox(data, type);
     }
 
     isCollision(shape: ShapeInterface, collisionClass: string) {
-        let data = Object.assign({},shape.data);
+        let data = Object.assign({}, shape.data);
         let type = shape.type.slice();
         let condition = (bInMove: BoundingBox, bObstacle: BoundingBox) => {
-            if((bObstacle.cornerX[1] < bInMove.cornerX[0] || bObstacle.cornerX[0] > bInMove.cornerX[1]) || 
-            (bObstacle.cornerY[1] < bInMove.cornerY[0] || bObstacle.cornerY[0] > bInMove.cornerY[1])){
+            if ((bObstacle.cornerX[1] < bInMove.cornerX[0] || bObstacle.cornerX[0] > bInMove.cornerX[1]) ||
+                (bObstacle.cornerY[1] < bInMove.cornerY[0] || bObstacle.cornerY[0] > bInMove.cornerY[1])) {
                 return false;
             }
             return true;
@@ -116,7 +133,7 @@ export class PhysicEngine {
 }
 
 let PhysicEngineInterface = (function () {
-    var instance: any;
+    var instance: PhysicEngine;
 
     return {
         getInstance: function () {
