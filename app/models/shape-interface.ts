@@ -1,6 +1,6 @@
 export interface ShapeInterface {
     type: string;
-    data: {[key:string]:number};
+    data: {[key:string]:number|string};
     fill: string;
 }
 

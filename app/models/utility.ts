@@ -30,4 +30,17 @@ export default class Utilitars {
         }
         return tempObj;
     }
+
+    createIdentifier(firstLetter:string|undefined){
+        let randIdentifier:string = '';
+        let toAdd:number = 97;
+        if(firstLetter !== undefined){
+            randIdentifier += firstLetter;
+            for(let i=0;i<5;i++){
+                let randVal:number = Math.floor(Math.random()*26);
+                randIdentifier += String.fromCharCode(randVal+toAdd);
+            }
+        }
+        return randIdentifier;
+    }
 }

@@ -12,6 +12,8 @@ export default class GroupModel {
   additionalData: {[key:string]:string|number|Array<number>|Array<string>} = {};
   additionalDataArray: Array<{[key:string]:string|number|Array<number>|Array<string>}> = [];
   initialLength: number = 0;
+  identifiers:Array<string> = new Array<string>();
+  identifiersMap:{[key:string]:boolean} = {};
 
   constructor() {
 
@@ -21,6 +23,17 @@ export default class GroupModel {
     this.config_array.pushObject(this.utils.processConfig(render_Obj));
     this.additionalDataArray.push({});
     this.initialLength++;
+    let identifier:string = this.utils.createIdentifier('g');
+    if(this.identifiersMap[identifier] === undefined || this.identifiersMap[identifier] === false){
+      this.identifiersMap[identifier] = true;
+    }else{
+      while(this.identifiersMap[identifier] === true){
+        identifier = this.utils.createIdentifier('g');
+      }
+      this.identifiersMap[identifier] = true;
+    }
+    // this.identifiers.push(identifier);
+    this.config_array[this.config_array.length-1].data['identifier'] = identifier;
     if (this.isTouchable === true) {
       let len = this.config_array.length;
       this.engine.setPosition(this.config_array[len - 1].data, this.config_array[len - 1].type, this.collisionClass);
@@ -102,15 +115,23 @@ export default class GroupModel {
   setPosition(positionX: number, positionY: number) {
     let temporal_Arr: Array<ShapeInterface> = [];
     this.copyArray(temporal_Arr, undefined);
+    if(typeof temporal_Arr[0].data['x'] !== 'number' || typeof temporal_Arr[0].data['y'] !== 'number'){
+      return;
+    }
 
     this.clear();
-    let diffX = positionX - temporal_Arr[0].data['x'];
-    let diffY = positionY - temporal_Arr[0].data['y'];
+    let diffX:number = positionX - temporal_Arr[0].data['x'];
+    let diffY:number = positionY - temporal_Arr[0].data['y'];
     for (let i = 0; i < temporal_Arr.length; i++) {
       let temporalConfig: ShapeInterface = { type: '', data: {}, fill: '' };
       temporalConfig.type = temporal_Arr[i].type.slice();
       if (temporal_Arr[i].fill !== undefined) {
         temporalConfig.fill = temporal_Arr[i].fill.slice();
+      }
+      let xVal:number = 0;
+      let yVal:number = 0;
+      if(typeof temporal_Arr[i].data['x'] !== 'number' || typeof temporal_Arr[i].data['y'] !== 'number'){
+        return;
       }
       temporalConfig.data = Object.assign({},temporal_Arr[i].data);
       this.config_array.pushObject(this.utils.changeCoordinates(temporal_Arr[i], temporal_Arr[i].data['x'] + diffX, temporal_Arr[i].data['y'] + diffY));
@@ -124,27 +145,15 @@ export default class GroupModel {
     if (index === undefined || index === null) {
       index = 0;
     }
+    if(index >= this.config_array.length){
+      return;
+    }
+    this.identifiersMap[this.config_array[index].data['identifier']] = false;
     this.config_array.splice(index, 1);
     this.additionalDataArray.splice(index, 1);
-    // let temporal_Arr:Array<any> = [];
-    // if(index === undefined || index === null){
-    //   index = 0;
-    // }
-    // this.copyArray(temporal_Arr,index);
-    // this.clear();
-    // this.config_array.pushObjects(temporal_Arr);
   }
 
   setFill(fillData: string, index: number | undefined = undefined) {
-    // if (index === undefined) {
-    //   for (let i = 0; i < this.config_array.length; i++) {
-    //     this.config_array[i].fill = fillData;
-    //   }
-    // } else {
-    //   if (index < this.config_array.length) {
-    //     this.config_array[index].fill = fillData;
-    //   }
-    // }
     if (index !== undefined && index < this.config_array.length) {
       let temporal_Arr: Array<ShapeInterface> = [];
       this.copyArray(temporal_Arr, undefined);

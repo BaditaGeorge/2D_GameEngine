@@ -17,6 +17,7 @@ export default class ShapeModel {
     let configData: ShapeInterface = { type: '', data:{}, fill: '' };
     if (this.config_obj.length < 1) {
       configData = this.utils.processConfig(config);
+      configData.data['identifier'] = this.utils.createIdentifier('a');
     }
     this.config_obj.pushObject(configData);
     if(this.isTouchable === true){
@@ -55,13 +56,8 @@ export default class ShapeModel {
     }
   }
 
-  getField(key: string): number {
+  getField(key: string): number | string {
     if (this.config_obj[0].data !== undefined) {
-      // if (key === 'w') {
-      //   return this.config_obj[0].data[2];
-      // } else if (key === 'h') {
-      //   return this.config_obj[0].data[3];
-      // }
       return this.config_obj[0].data[key];
     }
     return -1;
@@ -78,7 +74,7 @@ export default class ShapeModel {
     this.config_obj.pushObject(tempObj);
   }
 
-  getPosition(key: string): number {
+  getPosition(key: string): number | string {
     if (this.config_obj[0].data !== undefined) {
       // if (key === 'x') {
       //   return this.config_obj[0].data[0];
@@ -88,9 +84,8 @@ export default class ShapeModel {
       //   return -1;
       // }
       return this.config_obj[0].data[key];
-    } else {
-      return -1;
     }
+    return -1;
     // return this.config_obj[0][key];
   }
 }

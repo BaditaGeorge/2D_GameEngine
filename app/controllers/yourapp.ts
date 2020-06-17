@@ -98,18 +98,22 @@ export default class Yourapp extends Controller.extend({
       let lowerBounder: number = 4;
       if (this.alienBullets.getSize() < 3) {
         if (matrixOfInvs[lowerBounder][spawningPosition] === true) {
-          let positionalObj: { [key: string]: number } = this.groupModel.getPositionAt(lowerBounder * 5 + spawningPosition);
+          let positionalObj: { [key: string]: number | string } = this.groupModel.getPositionAt(lowerBounder * 5 + spawningPosition);
           this.alienBullets.addElement({ type: 'rect', w: 15, h: 50, x: positionalObj['x'], y: positionalObj['y'], fill: 'red' });
-          poss.push(positionalObj['x']);
-          poss.push(positionalObj['y']);
+          if (typeof positionalObj['x'] === 'number' && typeof positionalObj['y'] === 'number') {
+            poss.push(positionalObj['x']);
+            poss.push(positionalObj['y']);
+          }
         } else {
           while (lowerBounder >= 0 && matrixOfInvs[lowerBounder][spawningPosition] === false) {
             lowerBounder--;
           }
-          let positionalObj: { [key: string]: number } = this.groupModel.getPositionAt(lowerBounder * 5 + spawningPosition);
+          let positionalObj: { [key: string]: number | string } = this.groupModel.getPositionAt(lowerBounder * 5 + spawningPosition);
           this.alienBullets.addElement({ type: 'rect', w: 15, h: 50, x: positionalObj['x'], y: positionalObj['y'], fill: 'red' });
-          poss.push(positionalObj['x']);
-          poss.push(positionalObj['y']);
+          if (typeof positionalObj['x'] === 'number' && typeof positionalObj['y'] === 'number') {
+            poss.push(positionalObj['x']);
+            poss.push(positionalObj['y']);
+          }
         }
       }
     }
@@ -184,10 +188,12 @@ export default class Yourapp extends Controller.extend({
           }
         }
         if (targetIndex === -1 && this.bullet.getPosition('y') >= 0) {
-          let tempY = this.bullet.getPosition('y');
-          let tempX = this.bullet.getPosition('x');
-          tempY -= 10;
-          this.bullet.setPosition(tempX, tempY);
+          let tempY: number|string = this.bullet.getPosition('y');
+          let tempX: number|string = this.bullet.getPosition('x');
+          if (typeof tempY === 'number' && typeof tempX === 'number') {
+            tempY -= 10;
+            this.bullet.setPosition(tempX, tempY);
+          }
         } else {
           if (targetIndex !== -1) {
             if (colliSion === 'invaders') {
