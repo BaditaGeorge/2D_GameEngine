@@ -41,9 +41,23 @@ export default class RenderShapeComponent extends Component {
         let tempConfig = Object.assign({}, config);
         let keys = Object.keys(tempConfig);
         this.style = '';
-        for (let i = 0; i < keys.length; i++) {
-            if (!this.usedProps.includes(keys[i])) {
-                this.style += (keys[i] + ':' + tempConfig[keys[i]] + ';');
+        if (tempConfig['fill'] !== undefined) {
+            if (tempConfig['fill'].indexOf('#') === -1) {
+                this.style += ('fill' + ':' + tempConfig['fill'] + ';');
+            } else {
+                this.style += ('fill' + ':' + 'url(#' + tempConfig['fill'].split('#')[1] + ');');
+                this.defPosX = config.data['x'];
+                this.defPosY = config.data['y'];
+                this.resId = tempConfig['fill'].split('#')[1].slice();
+                this.resLoc = tempConfig['fill'].split('#')[0].slice();
+                this.resOn = true;
+                if (config.data['r'] !== undefined) {
+                    this.resW = config.data['w'];
+                    this.resH = config.data['h'];
+                } else {
+                    this.resW = config.data['r'];
+                    this.resH = config.data['r'];
+                }
             }
         }
     }

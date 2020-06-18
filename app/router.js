@@ -10,4 +10,5 @@ Router.map(function() {
     this.route('about');
     this.route('home', { path: '' });
     this.route('yourapp', { path: '/app' });
+    this.route('snake');
 });

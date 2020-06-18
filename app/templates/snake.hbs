@@ -1,7 +1,11 @@
 <div style="width:100%;height:100%;">
-    <svg width='1500' height='720'>
-        <rect width='1500' height='720' style='fill:green' />
-        {{#each this.elementsToRender as |element|}}
+    <svg width="{{this.maxWidth}}" height="{{this.maxHeight}}">
+        <rect width="{{this.maxWidth}}" height="{{this.maxHeight}}" style='fill:green' />
+        <Render::Group @object_set={{this.snake.config_array}} />
+        {{#each this.eatable.config_obj as |model|}}
+            <Render::Shape @model={{model}} />
+        {{/each}}
+        {{!-- {{#each this.elementsToRender as |element|}}
             {{#let (component element) as |Element|}}
                 <Element @object_set={{this.groupModel.config_array}} />
             {{/let}}
@@ -15,6 +19,6 @@
         {{#each this.shields as |shield|}}
             <Render::Group @object_set={{shield.config_array}} />
         {{/each}}
-        <Render::Group @object_set={{this.alienBullets.config_array}} />
+        <Render::Group @object_set={{this.alienBullets.config_array}} /> --}}
     </svg>
 </div>

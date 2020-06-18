@@ -41,7 +41,7 @@ export class PhysicEngine {
         return tempBoundBox;
     }
 
-    setPosition(data: { [key: string]: number | string } | undefined, type: string | undefined, collisionClass: string) {
+    setPosition(data: { [key: string]: number | string }, type: string | undefined, collisionClass: string) {
         let handler: BoundingBox | undefined = this.createBoundingBox(data, type);
         if (collisionClass !== undefined) {
             if (this.arrayIndexes[collisionClass] === undefined) {
@@ -59,21 +59,20 @@ export class PhysicEngine {
                 }
                 this.boundingBoxesMap[collisionClass].push(handler);
                 //{[key:string]:Array<string>}
-                this.linkMap[collisionClass].push(JSON.stringify(data));
+                this.linkMap[collisionClass].push(data['identifier'] + '');
                 //{[key:string]:[number,string]}
-                this.map[JSON.stringify(data)] = [this.arrayIndexes[collisionClass], collisionClass];
+                this.map[data['identifier']] = [this.arrayIndexes[collisionClass], collisionClass];
                 this.arrayIndexes[collisionClass]++;
             }
         }
     }
 
-    unsetPosition(data: { [key: string]: number | string } | undefined) {
-        let stringifiedData: string = JSON.stringify(data);
-        let actualIndex: number = this.map[stringifiedData][0];
-        let collisionClass: string = this.map[stringifiedData][1];
+    unsetPosition(data: { [key: string]: number | string }) {
+        let actualIndex: number = this.map[data['identifier']][0];
+        let collisionClass: string = this.map[data['identifier']][1];
         this.boundingBoxesMap[collisionClass][actualIndex].cornerX.clear();
         this.boundingBoxesMap[collisionClass][actualIndex].cornerY.clear();
-        this.map[stringifiedData].clear();
+        this.map[data['identifier']].clear();
         this.linkMap[collisionClass][actualIndex] = '';
     }
 
@@ -90,16 +89,14 @@ export class PhysicEngine {
         }
     }
 
-    resetPosition(data: { [key: string]: number | string } | undefined, oldData: { [key: string]: number | string } | undefined, type: string | undefined) {
-        let stringifiedData: string = JSON.stringify(data);
-        let stringifiedOldData: string = JSON.stringify(oldData);
-        let actualIndex: number = this.map[stringifiedOldData][0];
-        let collisionClass: string = this.map[stringifiedOldData][1];
-        this.map[stringifiedOldData].clear();
-        this.map[stringifiedData] = [actualIndex, collisionClass];
+    resetPosition(data: { [key: string]: number | string }, oldData: { [key: string]: number | string }, type: string | undefined) {
+        let actualIndex: number = this.map[oldData['identifier']][0];
+        let collisionClass: string = this.map[oldData['identifier']][1];
+        this.map[oldData['identifier']].clear();
+        this.map[data['identifier']] = [actualIndex, collisionClass];
         if (this.linkMap !== undefined) {
             if (this.linkMap[collisionClass] !== undefined) {
-                this.linkMap[collisionClass][actualIndex] = stringifiedData;
+                this.linkMap[collisionClass][actualIndex] = data['identifier'] + '';
             }
         }
         this.boundingBoxesMap[collisionClass][actualIndex] = this.createBoundingBox(data, type);

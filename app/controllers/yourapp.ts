@@ -6,6 +6,7 @@ import GroupModel from 'game-engine/models/group-model';
 import InputKeyModel from 'game-engine/models/input-key-model';
 import GameLoop from 'game-engine/models/game-loop';
 import PhysicEngineInterface, { PhysicEngine } from 'game-engine/models/physicEngine';
+import ResourceManagerInterface, { ResourceManager } from 'game-engine/models/resource-manager';
 
 export default class Yourapp extends Controller.extend({
   // anything which *must* be merged to prototype here
@@ -18,11 +19,12 @@ export default class Yourapp extends Controller.extend({
   elementsToRender: Array<string> = ['render/group'];
   groupModel = new GroupModel();
   keyProcessor = new InputKeyModel();
-  bullet = new ShapeModel();
-  gameLoop = new GameLoop();
+  bullet:ShapeModel = new ShapeModel();
+  gameLoop:GameLoop = new GameLoop();
   shields: Array<GroupModel> = [];
   engine: PhysicEngine | undefined = undefined;
   alienBullets: GroupModel = new GroupModel();
+  resManager:ResourceManager =ResourceManagerInterface.getInstance();
 
   constructor() {
     super(...arguments);
@@ -70,16 +72,33 @@ export default class Yourapp extends Controller.extend({
     this.doSomething();
   }
 
-  moveGrid(x: number, y: number) {
+  moveGrid(x: number, y: number, v:number) {
     this.groupModel.setPosition(x, y);
+    for(let i=0;i<5;i++){
+      for(let j=0;j<5;j++){
+        this.groupModel.setImageAt(i*5+j,'bigA'+v);
+      }
+    }
   }
 
   doSomething(): void {
+    this.resManager.setUrl('bigA0','api/bigAlien1.png');
+    this.resManager.setUrl('bigA1','api/bigAlien2.png');
+    this.resManager.setUrl('ship','api/battleShip.png');
+    this.resManager.setUrl('inv','api/bman.png');
+    this.simpleEl.setImage('ship');
     let gX = 10;
     let gY = 10;
+    let v:number = 0;
+    for(let i:number=0;i<5;i++){
+      for(let j:number=0;j<5;j++){
+        this.groupModel.setImageAt(i*5+j,'bigA0');
+      }
+    }
     let evGrid = () => {
       gX += 5;
-      this.moveGrid(gX, gY);
+      v = 1 - v;
+      this.moveGrid(gX, gY, v);
     }
     this.gameLoop.addLoop('moveGrid', evGrid, 200);
     let x = 10;
@@ -92,6 +111,7 @@ export default class Yourapp extends Controller.extend({
         matrixOfInvs[i].push(true);
       }
     }
+    // this.groupModel.setImageAt(0,'bigA0');
     let atTick: number = 0;
     let ev = () => {
       let spawningPosition: number = Math.floor(Math.random() * 5);
@@ -142,6 +162,10 @@ export default class Yourapp extends Controller.extend({
                 let damage: number | string | Array<string> | Array<number> = this.shields[j].getAdditionalDataAt(tIndex, 'damaged');
                 if (typeof damage === 'number') {
                   if (damage < 3) {
+                    damage = this.shields[j].getAdditionalDataAt(tIndex,'damaged');
+                    if(typeof damage !== 'number'){
+                      return;
+                    }
                     this.shields[j].setAdditionalDataAt(tIndex, 'damaged', damage + 1);
                   } else {
                     this.shields[j].popElement(tIndex);
@@ -157,7 +181,7 @@ export default class Yourapp extends Controller.extend({
             tIndex = this.engine.isCollision(this.alienBullets.getConfigAt(i), 'ship');
             if (tIndex !== -1) {
               toPop.push(i);
-              this.simpleEl.setFill('yellow');
+              // this.simpleEl.setFill('yellow');
             }
           }
         } else {
@@ -197,7 +221,7 @@ export default class Yourapp extends Controller.extend({
         } else {
           if (targetIndex !== -1) {
             if (colliSion === 'invaders') {
-              this.groupModel.setFill('yellow', targetIndex);
+              // this.groupModel.setFill('yellow', targetIndex);
               matrixOfInvs[Math.floor(targetIndex / 5)][targetIndex % 5] = false;
             } else if (colliSion === 'shields0') {
               this.shields[0].setFill('yellow', targetIndex);
@@ -206,6 +230,7 @@ export default class Yourapp extends Controller.extend({
               } else {
                 let damageInd: number | string | Array<number> | Array<string> = this.shields[0].getAdditionalDataAt(targetIndex, 'damaged');
                 if (damageInd < 3) {
+                  damageInd = this.shields[0].getAdditionalDataAt(targetIndex,'damaged');
                   if (typeof damageInd === 'number') {
                     this.shields[0].setAdditionalDataAt(targetIndex, 'damaged', damageInd + 1);
                   }

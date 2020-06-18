@@ -1,6 +1,8 @@
 import { ShapeInterface } from 'game-engine/models/shape-interface';
 import Utilitars from 'game-engine/models/utility';
 import PhysicEngineInterface, { PhysicEngine } from 'game-engine/models/physicEngine';
+import ResourceManagerInterface, { ResourceManager } from './resource-manager';
+
 
 export default class GroupModel {
   // normal class body definition here
@@ -14,6 +16,7 @@ export default class GroupModel {
   initialLength: number = 0;
   identifiers:Array<string> = new Array<string>();
   identifiersMap:{[key:string]:boolean} = {};
+  resManager:ResourceManager = ResourceManagerInterface.getInstance();
 
   constructor() {
 
@@ -112,6 +115,21 @@ export default class GroupModel {
     this.config_array.clear();
   }
 
+  setImageAt(index:number,key:string){
+    let temporalData:string = '';
+    let tempLoc:string = '';
+    tempLoc = this.resManager.getUrlAt(key);
+    if(this.config_array[index].fill.indexOf('#') === -1){
+      let tempId:string = this.resManager.getUniqueId();
+      temporalData = tempLoc + '#' + tempId;
+      this.config_array[index].fill = temporalData.slice(); 
+    }else{
+      let tempId:string = this.config_array[index].fill.split('#')[1];
+      temporalData = tempLoc + '#' + tempId;
+      this.config_array[index].fill = temporalData.slice();
+    }
+  }
+
   setPosition(positionX: number, positionY: number) {
     let temporal_Arr: Array<ShapeInterface> = [];
     this.copyArray(temporal_Arr, undefined);
@@ -128,8 +146,6 @@ export default class GroupModel {
       if (temporal_Arr[i].fill !== undefined) {
         temporalConfig.fill = temporal_Arr[i].fill.slice();
       }
-      let xVal:number = 0;
-      let yVal:number = 0;
       if(typeof temporal_Arr[i].data['x'] !== 'number' || typeof temporal_Arr[i].data['y'] !== 'number'){
         return;
       }

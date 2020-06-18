@@ -1,6 +1,7 @@
 import { ShapeInterface } from 'game-engine/models/shape-interface';
 import Utilitars from 'game-engine/models/utility';
 import PhysicEngineInterface from 'game-engine/models/physicEngine';
+import ResourceManagerInterface, { ResourceManager } from './resource-manager';
 
 export default class ShapeModel {
   // normal class body definition here
@@ -9,6 +10,7 @@ export default class ShapeModel {
   collisionClass:string = '';
   isTouchable:boolean = false;
   engine = PhysicEngineInterface.getInstance();
+  resManager:ResourceManager = ResourceManagerInterface.getInstance();
 
   constructor() {
   }
@@ -65,6 +67,21 @@ export default class ShapeModel {
 
   destroyObject() {
     this.config_obj.clear();
+  }
+
+  setImage(key:string){
+    let temporalData:string = '';
+    let tempLoc:string = '';
+    tempLoc = this.resManager.getUrlAt(key);
+    if(this.config_obj[0].fill.indexOf('#') === -1){
+      let tempId:string = this.resManager.getUniqueId();
+      temporalData = tempLoc + '#' + tempId;
+      this.config_obj[0].fill = temporalData.slice(); 
+    }else{
+      let tempId:string = this.config_obj[0].fill.split('#')[1];
+      temporalData = tempLoc + '#' + tempId;
+      this.config_obj[0].fill = temporalData.slice();
+    }
   }
 
   setFill(fillData: string) {

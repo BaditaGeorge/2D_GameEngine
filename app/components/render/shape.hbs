@@ -1,1 +1,9 @@
-<path d="{{this.path}}" style="{{this.style}}"/>
+{{#if this.resOn}}
+    <defs>
+        <pattern id="{{this.resId}}" patternUnits="userSpaceOnUse" width="100%" height="100%">
+            <image href="{{this.resLoc}}" x="{{this.defPosX}}" y="{{this.defPosY}}" width="{{this.resW}}" height="{{this.resH}}" />
+        </pattern>
+    </defs>
+{{/if}}
+
+<path d="{{this.path}}" style="{{this.style}}" />
