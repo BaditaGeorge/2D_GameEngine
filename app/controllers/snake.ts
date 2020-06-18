@@ -17,13 +17,16 @@ export default class Snake extends Controller.extend({
   inputKey: InputKeyModel = new InputKeyModel();
   gameLoop: GameLoop = new GameLoop();
   moveUnit: number = 50;
-  eatableX:number = Math.floor(Math.random()*27)*this.moveUnit;
-  eatableY:number = Math.floor(Math.random()*19)*this.moveUnit;
-  eatable:ShapeModel = new ShapeModel();
+  eatableX: number = Math.floor(Math.random() * 27) * this.moveUnit;
+  eatableY: number = Math.floor(Math.random() * 19) * this.moveUnit;
+  eatable: ShapeModel = new ShapeModel();
+  headIndex: number = 0;
+  engine: PhysicEngine = PhysicEngineInterface.getInstance();
 
 
   constructor() {
     super(...arguments);
+    this.snake.setCollisionClass('snake');
     this.snake.addElement({ type: 'rect', w: 50, x: 0, h: 50, y: 0, fill: 'blue' });
     for (let i: number = 0; i < this.maxHeight / 50; i++) {
       this.gameMatrix.push(Array<string>());
@@ -32,46 +35,84 @@ export default class Snake extends Controller.extend({
       }
     }
     this.gameMatrix[0][0] = this.direction;
-    this.gameMatrix[this.eatableY/this.moveUnit][this.eatableX/this.moveUnit] = 'e';
-    this.eatable.setConfig({type:'rect',w:50,x:this.eatableX,h:50,y:this.eatableY,fill:'yellow'});
+    this.gameMatrix[this.eatableY / this.moveUnit][this.eatableX / this.moveUnit] = 'e';
+    this.eatable.setConfig({ type: 'rect', w: 50, x: this.eatableX, h: 50, y: this.eatableY, fill: 'yellow' });
     this.playGame();
   }
 
   playGame() {
     let inGame = () => {
-      let positional: { [key: string]: string | number } = this.snake.getPositionAt(0);
+      let positional: { [key: string]: string | number } = this.snake.getPositionAt(this.headIndex);
       let cellDir: string = '';
       if (typeof positional['x'] === 'number' && typeof positional['y'] === 'number') {
-        cellDir = this.gameMatrix[positional['y']/this.moveUnit][positional['x']/this.moveUnit];
+        cellDir = this.gameMatrix[positional['y'] / this.moveUnit][positional['x'] / this.moveUnit];
       }
-      let xVal:number = 0;
-      let yVal:number = 0;
-      if(typeof positional['x'] === 'number' && typeof positional['y'] === 'number'){
+      let xVal: number = 0;
+      let yVal: number = 0;
+      if (this.engine.isCollision(this.eatable.getConfig(), 'snake') !== -1) {
+        if (typeof this.eatableX === 'number' && typeof this.eatableY === 'number') {
+          console.log(this.gameMatrix[this.eatableY / this.moveUnit][this.eatableX / this.moveUnit]);
+          this.eatableX = Math.floor(Math.random() * 27) * this.moveUnit;
+          this.eatableY = Math.floor(Math.random() * 19) * this.moveUnit;
+          this.gameMatrix[this.eatableY / this.moveUnit][this.eatableX / this.moveUnit] = 'e';
+          console.log(this.gameMatrix[this.eatableY / this.moveUnit][this.eatableX / this.moveUnit]);
+          this.eatable.setPosition(this.eatableX, this.eatableY);
+        }
+      }
+      if (typeof positional['x'] === 'number' && typeof positional['y'] === 'number') {
         xVal = positional['x'];
         yVal = positional['y'];
       }
-      console.log(xVal,yVal);
-      if(cellDir === 'r'){
+      if (cellDir === 'r') {
         xVal += this.moveUnit;
-      }else if(cellDir === 'l'){
+      } else if (cellDir === 'l') {
         xVal -= this.moveUnit;
-      }else if(cellDir === 'u'){
+      } else if (cellDir === 'u') {
         yVal -= this.moveUnit;
-      }else if(cellDir === 'd'){
+      } else if (cellDir === 'd') {
         yVal += this.moveUnit;
       }
-      this.gameMatrix[yVal/this.moveUnit][xVal/this.moveUnit] = '';
-      if (this.inputKey.isKeyDown('ArrowLeft')) {
-        this.direction = 'l';
-      } else if (this.inputKey.isKeyDown('ArrowRight')) {
+      if (xVal < 0 || yVal < 0 || xVal >= 1400 || yVal >= 1000) {
+        for (let i = 0; i < this.snake.getSize(); i++) {
+          console.log('ish' + i);
+          this.engine.unset('snake', i);
+          let tempPositional: { [key: string]: string | number } = this.snake.getPositionAt(i);
+          let xTmp: number = -1;
+          let yTmp: number = -1;
+          if (typeof tempPositional['x'] === 'number' && typeof tempPositional['y'] === 'number') {
+            xTmp = tempPositional['x'];
+            yTmp = tempPositional['y'];
+          }
+          if (xTmp >= 0 && yTmp >= 0 && xTmp >= 1400 && yTmp >= 1000) {
+            this.gameMatrix[yTmp / this.moveUnit][xTmp / this.moveUnit] = '';
+          }
+          this.snake.popElement(i);
+        }
+        this.snake.addElement({ type: 'rect', w: 50, x: 0, h: 50, y: 0, fill: 'blue' });
         this.direction = 'r';
-      } else if (this.inputKey.isKeyDown('ArrowUp')) {
-        this.direction = 'u';
-      } else if (this.inputKey.isKeyDown('ArrowDown')) {
-        this.direction = 'd';
+        this.gameMatrix[0][0] = this.direction;
+      } else {
+        this.gameMatrix[yVal / this.moveUnit][xVal / this.moveUnit] = '';
+        if (this.inputKey.isKeyDown('ArrowLeft')) {
+          if (this.direction !== 'r') {
+            this.direction = 'l';
+          }
+        } else if (this.inputKey.isKeyDown('ArrowRight')) {
+          if (this.direction !== 'l') {
+            this.direction = 'r';
+          }
+        } else if (this.inputKey.isKeyDown('ArrowUp')) {
+          if (this.direction !== 'd') {
+            this.direction = 'u';
+          }
+        } else if (this.inputKey.isKeyDown('ArrowDown')) {
+          if (this.direction !== 'u') {
+            this.direction = 'd';
+          }
+        }
+        this.gameMatrix[yVal / this.moveUnit][xVal / this.moveUnit] = this.direction;
+        this.snake.setPositionAt(this.headIndex, xVal, yVal);
       }
-      this.gameMatrix[yVal/this.moveUnit][xVal/this.moveUnit] = this.direction;
-      this.snake.setPositionAt(0,xVal,yVal);
     };
     this.gameLoop.addLoop('inGame', inGame, 100);
   }

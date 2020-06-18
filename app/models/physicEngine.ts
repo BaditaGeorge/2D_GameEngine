@@ -5,10 +5,10 @@ import { BoundingBox, ShapeInterface } from 'game-engine/models/shape-interface'
 export class PhysicEngine {
     boundingBoxesMap: { [key: string]: Array<BoundingBox> } = {};
     //adaugam si aici interfata, imd
-    map: {[key:string]:[number,string]} = {};
-    arrayIndexes: {[key:string]:number} = {};
+    map: { [key: string]: [number, string] } = {};
+    arrayIndexes: { [key: string]: number } = {};
     utils: Utilitars = new Utilitars();
-    linkMap: {[key:string]:Array<string>} = {};
+    linkMap: { [key: string]: Array<string> } = {};
 
     constructor() {
 
@@ -90,6 +90,11 @@ export class PhysicEngine {
     }
 
     resetPosition(data: { [key: string]: number | string }, oldData: { [key: string]: number | string }, type: string | undefined) {
+        if (this.map[oldData['identifier']] === undefined) {
+            console.log(this.map[oldData['identifier']]);
+            console.log('aici');
+            return;
+        }
         let actualIndex: number = this.map[oldData['identifier']][0];
         let collisionClass: string = this.map[oldData['identifier']][1];
         this.map[oldData['identifier']].clear();
@@ -106,12 +111,13 @@ export class PhysicEngine {
         let data = Object.assign({}, shape.data);
         let type = shape.type.slice();
         let condition = (bInMove: BoundingBox, bObstacle: BoundingBox) => {
-            if ((bObstacle.cornerX[1] < bInMove.cornerX[0] || bObstacle.cornerX[0] > bInMove.cornerX[1]) ||
-                (bObstacle.cornerY[1] < bInMove.cornerY[0] || bObstacle.cornerY[0] > bInMove.cornerY[1])) {
+            if ((bObstacle.cornerX[1] <= bInMove.cornerX[0] || bObstacle.cornerX[0] >= bInMove.cornerX[1]) ||
+                (bObstacle.cornerY[1] <= bInMove.cornerY[0] || bObstacle.cornerY[0] >= bInMove.cornerY[1])) {
                 return false;
             }
             return true;
         }
+        // console.log(this.boundingBoxesMap[collisionClass]);
         let movingBB: BoundingBox | undefined = this.createBoundingBox(data, type);
         if (movingBB !== undefined && this.boundingBoxesMap[collisionClass] !== undefined) {
             for (let i = 0; i < this.boundingBoxesMap[collisionClass].length; i++) {

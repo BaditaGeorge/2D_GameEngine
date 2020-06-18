@@ -7,43 +7,43 @@ import ResourceManagerInterface, { ResourceManager } from './resource-manager';
 export default class GroupModel {
   // normal class body definition here
   config_array: Array<ShapeInterface> = [];
-  utils:Utilitars = new Utilitars();
+  utils: Utilitars = new Utilitars();
   engine: PhysicEngine = PhysicEngineInterface.getInstance();
   isTouchable: boolean = false;
   collisionClass: string = '';
-  additionalData: {[key:string]:string|number|Array<number>|Array<string>} = {};
-  additionalDataArray: Array<{[key:string]:string|number|Array<number>|Array<string>}> = [];
+  additionalData: { [key: string]: string | number | Array<number> | Array<string> } = {};
+  additionalDataArray: Array<{ [key: string]: string | number | Array<number> | Array<string> }> = [];
   initialLength: number = 0;
-  identifiers:Array<string> = new Array<string>();
-  identifiersMap:{[key:string]:boolean} = {};
-  resManager:ResourceManager = ResourceManagerInterface.getInstance();
+  identifiers: Array<string> = new Array<string>();
+  identifiersMap: { [key: string]: boolean } = {};
+  resManager: ResourceManager = ResourceManagerInterface.getInstance();
 
   constructor() {
 
   }
 
-  addElement(render_Obj: {[key:string]:number|string}) {
+  addElement(render_Obj: { [key: string]: number | string }) {
     this.config_array.pushObject(this.utils.processConfig(render_Obj));
     this.additionalDataArray.push({});
     this.initialLength++;
-    let identifier:string = this.utils.createIdentifier('g');
-    if(this.identifiersMap[identifier] === undefined || this.identifiersMap[identifier] === false){
+    let identifier: string = this.utils.createIdentifier('g');
+    if (this.identifiersMap[identifier] === undefined || this.identifiersMap[identifier] === false) {
       this.identifiersMap[identifier] = true;
-    }else{
-      while(this.identifiersMap[identifier] === true){
+    } else {
+      while (this.identifiersMap[identifier] === true) {
         identifier = this.utils.createIdentifier('g');
       }
       this.identifiersMap[identifier] = true;
     }
     // this.identifiers.push(identifier);
-    this.config_array[this.config_array.length-1].data['identifier'] = identifier;
+    this.config_array[this.config_array.length - 1].data['identifier'] = identifier;
     if (this.isTouchable === true) {
       let len = this.config_array.length;
       this.engine.setPosition(this.config_array[len - 1].data, this.config_array[len - 1].type, this.collisionClass);
     }
   }
 
-  setAdditionalData(key: string, dataField: string|number|Array<number>|Array<string>) {
+  setAdditionalData(key: string, dataField: string | number | Array<number> | Array<string>) {
     this.additionalData[key] = dataField;
   }
 
@@ -51,7 +51,7 @@ export default class GroupModel {
     return this.additionalData[key];
   }
 
-  setAdditionalDataAt(index: number, key: string, dataField: string|number|Array<number>|Array<string>) {
+  setAdditionalDataAt(index: number, key: string, dataField: string | number | Array<number> | Array<string>) {
     this.additionalDataArray[index][key] = dataField;
   }
 
@@ -74,7 +74,7 @@ export default class GroupModel {
       if (temporal_Arr[i].fill !== undefined) {
         temporalConfig.fill = temporal_Arr[i].fill.slice();
       }
-      temporalConfig.data = Object.assign({},temporal_Arr[i].data);
+      temporalConfig.data = Object.assign({}, temporal_Arr[i].data);
       if (i === index) {
         this.config_array.pushObject(this.utils.changeCoordinates(temporal_Arr[i], positionX, positionY));
       } else {
@@ -115,16 +115,16 @@ export default class GroupModel {
     this.config_array.clear();
   }
 
-  setImageAt(index:number,key:string){
-    let temporalData:string = '';
-    let tempLoc:string = '';
+  setImageAt(index: number, key: string) {
+    let temporalData: string = '';
+    let tempLoc: string = '';
     tempLoc = this.resManager.getUrlAt(key);
-    if(this.config_array[index].fill.indexOf('#') === -1){
-      let tempId:string = this.resManager.getUniqueId();
+    if (this.config_array[index].fill.indexOf('#') === -1) {
+      let tempId: string = this.resManager.getUniqueId();
       temporalData = tempLoc + '#' + tempId;
-      this.config_array[index].fill = temporalData.slice(); 
-    }else{
-      let tempId:string = this.config_array[index].fill.split('#')[1];
+      this.config_array[index].fill = temporalData.slice();
+    } else {
+      let tempId: string = this.config_array[index].fill.split('#')[1];
       temporalData = tempLoc + '#' + tempId;
       this.config_array[index].fill = temporalData.slice();
     }
@@ -133,23 +133,23 @@ export default class GroupModel {
   setPosition(positionX: number, positionY: number) {
     let temporal_Arr: Array<ShapeInterface> = [];
     this.copyArray(temporal_Arr, undefined);
-    if(typeof temporal_Arr[0].data['x'] !== 'number' || typeof temporal_Arr[0].data['y'] !== 'number'){
+    if (typeof temporal_Arr[0].data['x'] !== 'number' || typeof temporal_Arr[0].data['y'] !== 'number') {
       return;
     }
 
     this.clear();
-    let diffX:number = positionX - temporal_Arr[0].data['x'];
-    let diffY:number = positionY - temporal_Arr[0].data['y'];
+    let diffX: number = positionX - temporal_Arr[0].data['x'];
+    let diffY: number = positionY - temporal_Arr[0].data['y'];
     for (let i = 0; i < temporal_Arr.length; i++) {
       let temporalConfig: ShapeInterface = { type: '', data: {}, fill: '' };
       temporalConfig.type = temporal_Arr[i].type.slice();
       if (temporal_Arr[i].fill !== undefined) {
         temporalConfig.fill = temporal_Arr[i].fill.slice();
       }
-      if(typeof temporal_Arr[i].data['x'] !== 'number' || typeof temporal_Arr[i].data['y'] !== 'number'){
+      if (typeof temporal_Arr[i].data['x'] !== 'number' || typeof temporal_Arr[i].data['y'] !== 'number') {
         return;
       }
-      temporalConfig.data = Object.assign({},temporal_Arr[i].data);
+      temporalConfig.data = Object.assign({}, temporal_Arr[i].data);
       this.config_array.pushObject(this.utils.changeCoordinates(temporal_Arr[i], temporal_Arr[i].data['x'] + diffX, temporal_Arr[i].data['y'] + diffY));
       if (this.isTouchable === true) {
         this.engine.resetPosition(this.config_array[i].data, temporalConfig.data, this.config_array[i].type);
@@ -161,7 +161,7 @@ export default class GroupModel {
     if (index === undefined || index === null) {
       index = 0;
     }
-    if(index >= this.config_array.length){
+    if (index >= this.config_array.length) {
       return;
     }
     this.identifiersMap[this.config_array[index].data['identifier']] = false;
@@ -185,7 +185,7 @@ export default class GroupModel {
         } else {
           temporalConfig.fill = fillData.slice();
         }
-        temporalConfig.data = Object.assign({},temporal_Arr[i].data);
+        temporalConfig.data = Object.assign({}, temporal_Arr[i].data);
         this.config_array.pushObject(temporalConfig);
       }
     }
