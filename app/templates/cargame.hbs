@@ -1,0 +1,24 @@
+<div style="width:100%;height:100%;">
+    <svg width="{{this.maxWidth}}" height="{{this.maxHeight}}">
+        <rect width="{{this.maxWidth}}" height="{{this.maxHeight}}" style='fill:black;' />
+        <Render::Group @object_set={{this.obstacles.config_array}} />
+        {{#each this.vehicle.config_obj as |model|}}
+            <Render::Shape @model={{model}} />
+        {{/each}}
+        {{!-- {{#each this.elementsToRender as |element|}}
+            {{#let (component element) as |Element|}}
+                <Element @object_set={{this.groupModel.config_array}} />
+            {{/let}}
+        {{/each}}
+        {{#each this.simpleEl.config_obj as |model|}}
+            <Render::Shape @model={{model}} />
+        {{/each}}
+        {{#each this.bullet.config_obj as |bModel|}}
+            <Render::Shape @model={{bModel}} />
+        {{/each}}
+        {{#each this.shields as |shield|}}
+            <Render::Group @object_set={{shield.config_array}} />
+        {{/each}}
+        <Render::Group @object_set={{this.alienBullets.config_array}} /> --}}
+    </svg>
+</div>

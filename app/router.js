@@ -11,4 +11,5 @@ Router.map(function() {
     this.route('home', { path: '' });
     this.route('yourapp', { path: '/app' });
     this.route('snake');
+    this.route('cargame');
 });
