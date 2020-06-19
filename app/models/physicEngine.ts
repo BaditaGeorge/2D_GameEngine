@@ -85,14 +85,13 @@ export class PhysicEngine {
                 this.linkMap[collisionClass][index] = '';
                 this.boundingBoxesMap[collisionClass].splice(index, 1);
                 this.linkMap[collisionClass].splice(index, 1);
+                this.arrayIndexes[collisionClass]--;
             }
         }
     }
 
     resetPosition(data: { [key: string]: number | string }, oldData: { [key: string]: number | string }, type: string | undefined) {
         if (this.map[oldData['identifier']] === undefined) {
-            console.log(this.map[oldData['identifier']]);
-            console.log('aici');
             return;
         }
         let actualIndex: number = this.map[oldData['identifier']][0];
@@ -117,15 +116,34 @@ export class PhysicEngine {
             }
             return true;
         }
-        // console.log(this.boundingBoxesMap[collisionClass]);
         let movingBB: BoundingBox | undefined = this.createBoundingBox(data, type);
         if (movingBB !== undefined && this.boundingBoxesMap[collisionClass] !== undefined) {
             for (let i = 0; i < this.boundingBoxesMap[collisionClass].length; i++) {
-                if (this.boundingBoxesMap[collisionClass][i].cornerX.length > 0) {
-                    if (this.boundingBoxesMap[collisionClass][i] !== undefined) {
+                if (this.boundingBoxesMap[collisionClass][i] !== undefined ) {
+                    if (this.boundingBoxesMap[collisionClass][i].cornerX.length > 0) {
                         if (condition(movingBB, this.boundingBoxesMap[collisionClass][i]) === true) {
                             return i;
                         }
+                    }
+                }
+            }
+        }
+        return -1;
+    }
+
+    isCollisionInClass(collisionClass: string) {
+        let condition = (bInMove: BoundingBox, bObstacle: BoundingBox) => {
+            if ((bObstacle.cornerX[1] <= bInMove.cornerX[0] || bObstacle.cornerX[0] >= bInMove.cornerX[1]) ||
+                (bObstacle.cornerY[1] <= bInMove.cornerY[0] || bObstacle.cornerY[0] >= bInMove.cornerY[1])) {
+                return false;
+            }
+            return true;
+        }
+        for (let i = 0; i < this.boundingBoxesMap[collisionClass].length; i++) {
+            for (let j = i + 1; j < this.boundingBoxesMap[collisionClass].length; j++) {
+                if (this.boundingBoxesMap[collisionClass][i] !== undefined && this.boundingBoxesMap[collisionClass][j] !== undefined) {
+                    if (condition(this.boundingBoxesMap[collisionClass][j], this.boundingBoxesMap[collisionClass][i]) === true) {
+                        return i;
                     }
                 }
             }
